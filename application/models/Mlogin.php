@@ -16,7 +16,6 @@ class Mlogin extends CI_Model
 
     }
 
-
     public function set_data($post_array)
     {
         if (isset($post_array['username']))

@@ -53,31 +53,6 @@ $route['default_controller'] = 'index';
 
 $route['api/app/version/(:any)']['GET'] = 'api/consultant/GetAppVersion/$1';
 
-//region Clinic Routes
-$route['api/clinic']['POST'] = 'api/consultant/CreateClinic';
-$route['api/clinic/(:any)']['GET'] = 'api/consultant/ClinicByUniqueId/$1';
-$route['api/clinic/(:any)/consultant']['POST'] = 'api/consultant/RegisterConsultant/$1';
-$route['api/clinic/consultant/(:any)']['GET'] = 'api/consultant/ConsultantByUniqueId/$1';
-$route['api/clinic/(:any)/consultant']['GET'] = 'api/consultant/GetConsultantforClinic/$1';
-$route['api/clinic/consultant/(:any)']['PUT'] = 'api/consultant/UpdateConsultant/$1';
-$route['api/clinic/(:any)/sessions']['POST'] = 'api/consultant/AddClinicSessions/$1';
-$route['api/clinic/(:any)/sessions/(:any)']['PUT'] = 'api/consultant/UpdateClinicSessions/$1/$2';
-$route['api/clinic/(:any)/sessions/(:any)/ontheway']['PUT'] = 'api/consultant/SendOntheWayMessage/$1/$2';
-$route['api/clinic/(:any)/holidays']['POST'] = 'api/consultant/AddHolidays/$1';
-$route['api/clinic/(:any)/holidays']['GET'] = 'api/consultant/GetHolidaysByClinic/$1';
-$route['api/clinic/(:any)/holidays/(:any)']['DELETE'] = 'api/consultant/DeleteHolidays/$1/$2';
-$route['api/clinic/(:any)/session']['GET'] = 'api/consultant/ViewSessionsBClinic/$1';
-$route['api/clinic/(:any)/session/day/(:any)']['GET'] = 'api/consultant/ViewSessionsByDay/$1/$2';
-$route['api/clinic/(:any)/session/date/(:any)']['GET'] = 'api/consultant/ViewSessionsByDate/$1/$2';
-$route['api/clinic/(:any)/session/today']['GET'] = 'api/consultant/ViewSessionsforToday/$1';
-$route['api/clinic/(:any)/session/(:any)']['GET'] = 'api/consultant/ViewSessionsByID/$1/$2';
-$route['api/clinic/(:any)/consultant/(:any)/sessions']['GET'] = 'api/consultant/ViewSessionsByConsultant/$1/$2';
-$route['api/clinic/(:any)/session/(:any)/start']['PUT'] = 'api/consultant/StartSession/$1/$2';
-$route['api/clinic/(:any)/session/(:any)/end']['PUT'] = 'api/consultant/EndSession/$1/$2';
-$route['api/clinic/(:any)/session/(:any)/appointment/(:any)/next']['PUT'] = 'api/consultant/NextNumber/$1/$2/$3';
-$route['api/clinic/(:any)/session/(:any)/appointment/(:any)/skip']['PUT'] = 'api/consultant/SkipNumber/$1/$2/$3';
-// 
-
 // payments routes
 $route['api/clinic/(:any)/pay']['POST'] = 'api/consultant/DoPayment/$1';
 $route['api/clinic/(:any)/payments/pending']['GET'] = 'api/consultant/ViewPaymentsPending/$1';
