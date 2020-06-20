@@ -2,7 +2,7 @@
 
 class Paymentrequest{
 
-	$start_date=null;
-	$end_date=null;
-	$sessions = array();
+//	$start_date=null;
+//	$end_date=null;
+//	$sessions = array();
 }

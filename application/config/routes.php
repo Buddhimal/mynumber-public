@@ -53,26 +53,20 @@ $route['default_controller'] = 'index';
 
 $route['api/app/version/(:any)']['GET'] = 'api/consultant/GetAppVersion/$1';
 
-// payments routes
-$route['api/clinic/(:any)/pay']['POST'] = 'api/consultant/DoPayment/$1';
-$route['api/clinic/(:any)/payments/pending']['GET'] = 'api/consultant/ViewPaymentsPending/$1';
-$route['api/clinic/(:any)/payments/done']['GET'] = 'api/consultant/ViewPaymentsDone/$1';
-//endregion
-
-
 //region Login & OTP Routes
-$route['api/clinic/(:any)/otp/validate']['PUT'] = 'api/consultant/ValidateOTP/$1';
-$route['api/clinic/(:any)/otp/resend']['PUT'] = 'api/consultant/ResendOTP/$1';
+$route['api/public/(:any)/otp/validate']['PUT'] = 'api/consultant/ValidateOTP/$1';
+$route['api/public/(:any)/otp/resend']['PUT'] = 'api/consultant/ResendOTP/$1';
 $route['api/otp/send/username']['PUT'] = 'api/consultant/SendOTPforUsername';
-$route['api/clinic/auth/checkin']['POST'] = 'api/auth/checkin';
-$route['api/clinic/auth/reset']['PUT'] = 'api/auth/ResetPassword';
-$route['api/clinic/(:any)/auth/change']['PUT'] = 'api/auth/ChangePassword/$1';
+$route['api/public/auth/checkin']['POST'] = 'api/auth/checkin';
+$route['api/public/auth/reset']['PUT'] = 'api/auth/ResetPassword';
+$route['api/public/(:any)/auth/change']['PUT'] = 'api/auth/ChangePassword/$1';
 //endregion
 
 
 //region Public Routes
-$route['api/patient/(:any)/session/(:any)/appointment']['POST'] = 'api/consultant/BookAppointment/$1/$2';
-$route['api/patient/(:any)/session/(:any)/number']['GET'] = 'api/consultant/GetAppointmentNumber/$1/$2';
+$route['api/public/(:any)/session/(:any)/appointment']['POST'] = 'api/patient/BookAppointment/$1/$2';
+$route['api/public/(:any)/session/(:any)/number']['GET'] = 'api/patient/GetAppointmentNumber/$1/$2';
+$route['api/public']['POST'] = 'api/patient/RegisterPublic';
 //endregion
 
 // errors

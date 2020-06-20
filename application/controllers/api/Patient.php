@@ -6,7 +6,7 @@ require_once(APPPATH . 'libraries/REST_Controller.php');
 /**
  *
  */
-class Consultant extends REST_Controller
+class Patient extends REST_Controller
 {
     function __construct()
     {
@@ -29,7 +29,6 @@ class Consultant extends REST_Controller
         $this->load->model('mclinicappointment');
         $this->load->model('mclinicsessiontrans');
         $this->load->model('mappversion');
-        $this->load->model('mpaymentreceivals', "payment_receivals");
     }
 
     //region Index
@@ -122,7 +121,7 @@ class Consultant extends REST_Controller
 
                 $app_info = $this->mappversion->get_app_version($app_name);
 
-                if(!is_null($app_info)){
+                if (!is_null($app_info)) {
 
                     $response->status = REST_Controller::HTTP_OK;
                     $response->status_code = APIResponseCode::SUCCESS;
@@ -131,7 +130,7 @@ class Consultant extends REST_Controller
                     $response->error_msg = null;
                     $this->response($response, REST_Controller::HTTP_UNAUTHORIZED);
 
-                } else{
+                } else {
                     $response->status = REST_Controller::HTTP_BAD_REQUEST;
                     $response->status_code = APIResponseCode::BAD_REQUEST;
                     $response->msg = 'Invalid App Name';
@@ -159,59 +158,6 @@ class Consultant extends REST_Controller
         }
     }
 
-
-    //region All API for Consultant
-    //	public function RegisterConsultant_post()
-    //	{
-    //		$method = $_SERVER['REQUEST_METHOD'];
-    //		$response = new stdClass();
-    //		if ($method == 'POST') {
-    //
-    //			$check_auth_client = $this->mmodel->check_auth_client();
-    //
-    //			if ($check_auth_client == true) {
-    //
-    //				// Passing post array to the model.
-    //				$this->mdoctor->set_data($this->input->post());
-    //
-    //				// model it self will validate the input data
-    //				if ($this->mdoctor->is_valid()) {
-    //
-    //					// create the doctor record as the given data is valid
-    //					$doctor = $this->mdoctor->create();
-    //
-    //					if (!is_null($doctor)) {
-    //						$response->status = REST_Controller::HTTP_OK;
-    //						$response->msg = 'New Doctor Added Successfully';
-    //						$response->error_msg = NULL;
-    //						$response->response = $doctor;
-    //						$this->response($response, REST_Controller::HTTP_OK);
-    //					}
-    //				} else {
-    //					$response->status = REST_Controller::HTTP_BAD_REQUEST;
-    //					$response->msg = 'Validation Failed.';
-    //					$response->response = NULL;
-    //					$response->error_msg = $this->mdoctor->validation_errors;
-    //					$this->response($response, REST_Controller::HTTP_BAD_REQUEST);
-    //				}
-    //			} else {
-    //				$response->status = REST_Controller::HTTP_UNAUTHORIZED;
-    //				$response->msg = 'Unauthorized';
-    //				$response->response = NULL;
-    //				$response->error_msg = 'Invalid Authentication Key.';
-    //				$this->response($response, REST_Controller::HTTP_UNAUTHORIZED);
-    //			}
-    //		} else {
-    //			$response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
-    //			$response->msg = 'Method Not Allowed';
-    //			$response->response = NULL;
-    //			$response->error_msg = 'Invalid Request Method.';
-    //			$this->response($response, REST_Controller::HTTP_METHOD_NOT_ALLOWED);
-    //		}
-    //	}
-    //endregion
-
-
     //region All API for Public
     public function RegisterPublic_post()
     {
@@ -223,8 +169,10 @@ class Consultant extends REST_Controller
 
             if ($check_auth_client == true) {
 
+                $json_data = $this->post('json_data');
+
                 // Passing post array to the model.
-                $this->mpublic->set_data($this->input->post());
+                $this->mpublic->set_data($json_data);
 
                 // model it self will validate the input data
                 if ($this->mpublic->is_valid()) {
@@ -232,13 +180,44 @@ class Consultant extends REST_Controller
                     // create the doctor record as the given data is valid
                     $public = $this->mpublic->create();
 
+//                    if (!is_null($public)) {
+//                        $response->status = REST_Controller::HTTP_OK;
+//                        $response->msg = 'New Public Added Successfully';
+//                        $response->error_msg = NULL;
+//                        $response->response = $public;
+//                        $this->response($response, REST_Controller::HTTP_OK);
+//                    }
+
                     if (!is_null($public)) {
+
+                        $login_data['username'] = $json_data['email'];
+                        $login_data['password'] = $json_data["password"];
+                        $login_data['mobile'] = $json_data["telephone"];
+
+                        $this->mlogin->set_data($login_data);
+
+                        $login = $this->mlogin->create($public->id, EntityType::Patient); // return true or false
+
+                        if ($login) {
+                            $this->motpcode->create($public->id, $login_data['mobile']);
+                        }
+
                         $response->status = REST_Controller::HTTP_OK;
-                        $response->msg = 'New Public Added Successfully';
+                        $response->status_code = APIResponseCode::SUCCESS;
+                        $response->msg = 'New Clinic Added Successfully';
                         $response->error_msg = NULL;
                         $response->response = $public;
                         $this->response($response, REST_Controller::HTTP_OK);
+                    } else {
+                        $response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
+                        $response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
+                        $response->msg = NULL;
+                        $response->error_msg[] = 'Internal Server Error';
+                        $response->response = NULL;
+                        $this->response($response, REST_Controller::HTTP_OK);
                     }
+
+
                 } else {
                     $response->status = REST_Controller::HTTP_BAD_REQUEST;
                     $response->msg = 'Validation Failed.';
