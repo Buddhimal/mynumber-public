@@ -54,19 +54,20 @@ $route['default_controller'] = 'index';
 $route['api/app/version/(:any)']['GET'] = 'api/consultant/GetAppVersion/$1';
 
 //region Login & OTP Routes
+$route['api/public/auth/checkin']['POST'] = 'api/auth/checkin';
 $route['api/public/(:any)/otp/validate']['PUT'] = 'api/consultant/ValidateOTP/$1';
 $route['api/public/(:any)/otp/resend']['PUT'] = 'api/consultant/ResendOTP/$1';
 $route['api/otp/send/username']['PUT'] = 'api/consultant/SendOTPforUsername';
-$route['api/public/auth/checkin']['POST'] = 'api/auth/checkin';
 $route['api/public/auth/reset']['PUT'] = 'api/auth/ResetPassword';
 $route['api/public/(:any)/auth/change']['PUT'] = 'api/auth/ChangePassword/$1';
 //endregion
 
 
 //region Public Routes
+$route['api/public']['POST'] = 'api/patient/RegisterPublic';
+$route['api/public/(:any)']['GET'] = 'api/patient/PublicByUniqueId/$1';
 $route['api/public/(:any)/session/(:any)/appointment']['POST'] = 'api/patient/BookAppointment/$1/$2';
 $route['api/public/(:any)/session/(:any)/number']['GET'] = 'api/patient/GetAppointmentNumber/$1/$2';
-$route['api/public']['POST'] = 'api/patient/RegisterPublic';
 //endregion
 
 // errors

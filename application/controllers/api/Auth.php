@@ -76,9 +76,6 @@ class Auth extends REST_Controller
 
                 $inputs = $this->post('json_data');
 
-                // $this->load->library("UtilityHandler", null);
-                // $inputs['password'] = $this->utilityhandler->_salt($inputs["password"], $inputs['username']);
-
                 $this->mlogin->set_data($inputs);
 
                 if ($this->mlogin->is_valid()) {

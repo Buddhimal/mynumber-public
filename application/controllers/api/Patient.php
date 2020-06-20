@@ -196,18 +196,28 @@ class Patient extends REST_Controller
 
                         $this->mlogin->set_data($login_data);
 
-                        $login = $this->mlogin->create($public->id, EntityType::Patient); // return true or false
+                        if ($this->mlogin->is_valid()) {
 
-                        if ($login) {
-                            $this->motpcode->create($public->id, $login_data['mobile']);
+                            $login = $this->mlogin->create($public->id, EntityType::Patient);// return true or false
+
+                            if ($login) {
+                                $this->motpcode->create($public->id, $login_data['mobile']);
+                            }
+
+                            $response->status = REST_Controller::HTTP_OK;
+                            $response->status_code = APIResponseCode::SUCCESS;
+                            $response->msg = 'New Public Added Successfully';
+                            $response->error_msg = NULL;
+                            $response->response = $public;
+                            $this->response($response, REST_Controller::HTTP_OK);
+                        } else {
+                            $response->status = REST_Controller::HTTP_BAD_REQUEST;
+                            $response->msg = 'Validation Failed.';
+                            $response->response = NULL;
+                            $response->error_msg = $this->mlogin->validation_errors;
+                            $this->response($response, REST_Controller::HTTP_OK);
                         }
 
-                        $response->status = REST_Controller::HTTP_OK;
-                        $response->status_code = APIResponseCode::SUCCESS;
-                        $response->msg = 'New Clinic Added Successfully';
-                        $response->error_msg = NULL;
-                        $response->response = $public;
-                        $this->response($response, REST_Controller::HTTP_OK);
                     } else {
                         $response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
                         $response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
@@ -216,7 +226,6 @@ class Patient extends REST_Controller
                         $response->response = NULL;
                         $this->response($response, REST_Controller::HTTP_OK);
                     }
-
 
                 } else {
                     $response->status = REST_Controller::HTTP_BAD_REQUEST;
@@ -241,7 +250,7 @@ class Patient extends REST_Controller
         }
     }
 
-    public function PublicByUniqueId_get()
+    public function PublicByUniqueId_get($public_id)
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $response = new stdClass();
@@ -251,7 +260,7 @@ class Patient extends REST_Controller
 
             if ($check_auth_client == true) {
 
-                $public = $this->mpublic->get($this->input->get('id'));
+                $public = $this->mpublic->get($public_id);
 
                 $response->status = REST_Controller::HTTP_OK;
                 $response->msg = 'Public Details';
