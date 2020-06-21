@@ -2,6 +2,7 @@
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once(APPPATH . 'entities/EntityClinic.php');
+require_once(APPPATH . 'entities/EntityClinicSearchResult.php');
 
 class Mclinic extends CI_Model
 {
@@ -34,43 +35,73 @@ class Mclinic extends CI_Model
 
     public function get_clinics_by_doctor_name($doctor_name)
     {
-        $clinic_result = null;
+        $result = null;
         if ($doctor_name != '') {
 
             $res = $this->db->query("SELECT
-                                        c.id as clinic_id,
-                                        l.id as location_id,
-                                        d.id as doctor_id
-                                    FROM
-                                        consultant_pool AS cp
-                                        INNER JOIN doctor AS d ON cp.consultant_id = d.id
-                                        INNER JOIN clinic AS c ON c.id = cp.clinic_id
-                                        INNER JOIN locations AS l ON c.location_id = l.id
-                                    WHERE 
-                                    c.is_active = 1 AND
-	                                c.is_deleted = 0 AND
-	                                l.is_active = 1 AND
-	                                l.is_deleted = 0 AND
-	                                cp.is_active = 1 AND
-	                                cp.is_deleted = 0 AND
-                                    CONCAT(d.salutation,' ',d.first_name,' ',d.last_name) LIKE '%" . $doctor_name . "%'  ");
+                                                c.id AS clinic_id,
+                                                c.clinic_name,
+                                                l.city,
+                                                l.lat,
+                                                l.long 
+                                            FROM
+                                                consultant_pool AS cp
+                                                INNER JOIN doctor AS d ON cp.consultant_id = d.id
+                                                INNER JOIN clinic AS c ON c.id = cp.clinic_id
+                                                INNER JOIN locations AS l ON c.location_id = l.id 
+                                            WHERE
+                                                c.is_active = 1 
+                                                AND c.is_deleted = 0 
+                                                AND l.is_active = 1 
+                                                AND l.is_deleted = 0 
+                                                AND cp.is_active = 1 
+                                                AND cp.is_deleted = 0 
+                                                AND CONCAT( d.salutation, ' ', d.first_name, ' ', d.last_name ) LIKE '%" . $doctor_name . "%'  ");
 
             foreach ($res->result() as $clinic_data) {
-                $clinic = $this->mclinic->get($clinic_data->clinic_id);
-                $clinic->location = $this->mlocations->get($clinic_data->location_id);
-                $clinic->consultant = $this->mdoctor->get($clinic_data->doctor_id);
+//                $clinic = $this->mclinic->get($clinic_data->clinic_id);
+//                $clinic->location = $this->mlocations->get($clinic_data->location_id);
+//                $clinic->consultant = $this->mdoctor->get($clinic_data->doctor_id);
 
-                $clinic_result[] = $clinic;
+                $result[] = new EntityClinicSearchResult($clinic_data);
             }
         }
-        return $clinic_result;
+        return $result;
+    }
+
+    public function get_clinics_by_name($clinic_name)
+    {
+        $result = null;
+        if ($clinic_name != '') {
+
+            $res = $this->db->query("SELECT
+                                                c.id AS clinic_id,
+                                                c.clinic_name,
+                                                l.city,
+                                                l.lat,
+                                                l.long 
+                                            FROM
+                                                clinic AS c 
+                                                INNER JOIN locations AS l ON c.location_id = l.id 
+                                            WHERE
+                                                c.is_active = 1 
+                                                AND c.is_deleted = 0 
+                                                AND l.is_active = 1 
+                                                AND l.is_deleted = 0 
+                                                AND c.clinic_name LIKE '%" . $clinic_name . "%'  ");
+
+            foreach ($res->result() as $clinic_data) {
+                $result[] = new EntityClinicSearchResult($clinic_data);
+            }
+        }
+        return $result;
     }
 
 
     public function get_clinics_by_location($lat,$long)
     {
 
-        $clinic = null;
+        $result = null;
 
         $parameters = array($lat, $long);
 
@@ -78,10 +109,10 @@ class Mclinic extends CI_Model
         $res = $this->db->query($sql,$parameters);
 
         foreach ($res->result() as $clinic_data) {
-            $clinic[] = $clinic_data;
+            $result[] = new EntityClinicSearchResult($clinic_data);
         }
 
-        return $clinic;
+        return $result;
 
     }
 

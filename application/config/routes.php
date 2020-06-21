@@ -66,8 +66,12 @@ $route['api/public/(:any)/auth/change']['PUT'] = 'api/auth/ChangePassword/$1';
 //region Public Routes
 $route['api/public']['POST'] = 'api/patient/RegisterPublic';
 $route['api/public/(:any)']['GET'] = 'api/patient/PublicByUniqueId/$1';
-$route['api/public/(:any)/session/(:any)/appointment']['POST'] = 'api/patient/BookAppointment/$1/$2';
+$route['api/search/clinic/location/(:any)/(:any)']['GET'] = 'api/patient/SearchClinicByLocation/$1/$2';
+$route['api/search/clinic/doctor/(:any)']['GET'] = 'api/patient/SearchClinicByDoctor/$1';
+$route['api/search/clinic/(:any)']['GET'] = 'api/patient/SearchClinicByName/$1';
+$route['api/clinic/(:any)']['GET'] = 'api/patient/ClinicByUniqueId/$1';
 $route['api/public/(:any)/session/(:any)/number']['GET'] = 'api/patient/GetAppointmentNumber/$1/$2';
+$route['api/public/(:any)/session/(:any)/appointment']['POST'] = 'api/patient/BookAppointment/$1/$2';
 //endregion
 
 // errors

@@ -159,6 +159,7 @@ class Patient extends REST_Controller
     }
 
     //region All API for Public
+
     public function RegisterPublic_post()
     {
         $method = $_SERVER['REQUEST_METHOD'];
@@ -542,7 +543,44 @@ class Patient extends REST_Controller
                 $response->status_code = APIResponseCode::SUCCESS;
                 $response->msg = 'Clinic Details';
                 $response->error_msg = NULL;
-                $response->response = $clinic;
+                $response->response['clinics'] = $clinic;
+                $this->response($response, REST_Controller::HTTP_OK);
+
+            } else {
+                $response->status = REST_Controller::HTTP_UNAUTHORIZED;
+                $response->status_code = APIResponseCode::UNAUTHORIZED;
+                $response->msg = 'Unauthorized';
+                $response->response = NULL;
+                $response->error_msg[] = 'Invalid Authentication Key.';
+                $this->response($response, REST_Controller::HTTP_UNAUTHORIZED);
+            }
+        } else {
+            $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+            $response->status_code = APIResponseCode::METHOD_NOT_ALLOWED;
+            $response->msg = 'Method Not Allowed';
+            $response->response = NULL;
+            $response->error_msg[] = 'Invalid Request Method.';
+            $this->response($response, REST_Controller::HTTP_METHOD_NOT_ALLOWED);
+        }
+    }
+
+    public function SearchClinicByName_get($clinic_name = '')
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $response = new stdClass();
+        if ($method == 'GET') {
+
+            $check_auth_client = $this->mmodel->check_auth_client();
+
+            if ($check_auth_client == true) {
+
+                $clinic = $this->mclinic->get_clinics_by_name($clinic_name);
+
+                $response->status = REST_Controller::HTTP_OK;
+                $response->status_code = APIResponseCode::SUCCESS;
+                $response->msg = 'Clinic Details';
+                $response->error_msg = NULL;
+                $response->response['clinics'] = $clinic;
                 $this->response($response, REST_Controller::HTTP_OK);
 
             } else {
@@ -579,7 +617,7 @@ class Patient extends REST_Controller
                 $response->status_code = APIResponseCode::SUCCESS;
                 $response->msg = 'Clinic Details';
                 $response->error_msg = NULL;
-                $response->response = $clinic;
+                $response->response['clinics'] = $clinic;
                 $this->response($response, REST_Controller::HTTP_OK);
 
             } else {
@@ -597,6 +635,59 @@ class Patient extends REST_Controller
             $response->response = NULL;
             $response->error_msg[] = 'Invalid Request Method.';
             $this->response($response, REST_Controller::HTTP_METHOD_NOT_ALLOWED);
+        }
+    }
+
+    public function ClinicByUniqueId_get($clinic_id = '')
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $response = new stdClass();
+        if ($method == 'GET') {
+
+            $check_auth_client = $this->mmodel->check_auth_client();
+
+            if ($check_auth_client == true) {
+
+                if ($this->mclinic->valid_clinic($clinic_id)) {
+
+                    $clinic = $this->mclinic->get($clinic_id);
+                    $clinic->location = $this->mlocations->get($clinic->location);
+                    $clinic->consultants = $this->mdoctor->get_consultants($clinic->id);
+                    $clinic->sessions = $this->mclinicsession->get_sessions($clinic->id);
+                    $clinic->holidays = $this->mclinicholidays->get_holidays($clinic->id);
+
+                    $response->status = REST_Controller::HTTP_OK;
+                    $response->status_code = APIResponseCode::SUCCESS;
+                    $response->msg = 'Clinic Details';
+                    $response->error_msg = NULL;
+                    $response->response['clinic'] = $clinic;
+                    $this->response($response, REST_Controller::HTTP_OK);
+
+                } else {
+                    $response->status = REST_Controller::HTTP_BAD_REQUEST;
+                    $response->status_code = APIResponseCode::BAD_REQUEST;
+                    $response->msg = 'Invalid Clinic Id';
+                    $response->error_msg[] = 'Invalid Clinic Id';
+                    $response->response = NULL;
+                    $this->response($response, REST_Controller::HTTP_OK);
+                }
+
+
+            } else {
+                $response->status = REST_Controller::HTTP_UNAUTHORIZED;
+                $response->status_code = APIResponseCode::UNAUTHORIZED;
+                $response->msg = 'Unauthorized';
+                $response->response = NULL;
+                $response->error_msg[] = 'Invalid Authentication Key.';
+                $this->response($response, REST_Controller::HTTP_OK);
+            }
+        } else {
+            $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+            $response->status_code = APIResponseCode::METHOD_NOT_ALLOWED;
+            $response->msg = 'Method Not Allowed';
+            $response->response = NULL;
+            $response->error_msg[] = 'Invalid Request Method.';
+            $this->response($response, REST_Controller::HTTP_OK);
         }
     }
 
@@ -1100,58 +1191,6 @@ class Patient extends REST_Controller
             $response->msg = 'Method Not Allowed';
             $response->response = NULL;
             $response->error_msg[] = 'Invalid Request Method.';
-            $this->response($response, REST_Controller::HTTP_METHOD_NOT_ALLOWED);
-        }
-    }
-
-    public function GetHolidaysByClinic_get($clinic_id = '')
-    {
-        $method = $_SERVER['REQUEST_METHOD'];
-        $response = new stdClass();
-
-        if ($method == 'GET') {
-
-            $check_auth_client = $this->mmodel->check_auth_client();
-
-            if ($check_auth_client == true) {
-
-                if ($this->mclinic->valid_clinic($clinic_id)) {
-
-                    $this->mclinicholidays->set_data($this->post('json_data'));
-
-                    // create the holiday record as the given data is valid
-                    $holiday = $this->mclinicholidays->get_holidays($clinic_id);
-
-                    $response->status = REST_Controller::HTTP_OK;
-                    $response->status_code = APIResponseCode::SUCCESS;
-                    $response->msg = 'Holidays List';
-                    $response->error_msg = NULL;
-                    $response->response['holiday'] = $holiday;
-                    $this->response($response, REST_Controller::HTTP_OK);
-
-                } else {
-                    $response->status = REST_Controller::HTTP_BAD_REQUEST;
-                    $response->status_code = APIResponseCode::BAD_REQUEST;
-                    $response->msg = 'Invalid Clinic Id';
-                    $response->error_msg[] = 'Invalid Clinic Id';
-                    $response->response = NULL;
-                    $this->response($response, REST_Controller::HTTP_BAD_REQUEST);
-                }
-
-            } else {
-                $response->status = REST_Controller::HTTP_UNAUTHORIZED;
-                $response->status_code = APIResponseCode::UNAUTHORIZED;
-                $response->msg = 'Unauthorized';
-                $response->error_msg[] = 'Invalid Authentication Key.';
-                $response->response = NULL;
-                $this->response($response, REST_Controller::HTTP_UNAUTHORIZED);
-            }
-        } else {
-            $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
-            $response->status_code = APIResponseCode::METHOD_NOT_ALLOWED;
-            $response->msg = 'Method Not Allowed';
-            $response->error_msg[] = 'Invalid Request Method.';
-            $response->response = NULL;
             $this->response($response, REST_Controller::HTTP_METHOD_NOT_ALLOWED);
         }
     }
