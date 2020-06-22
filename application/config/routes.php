@@ -51,13 +51,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 $route['default_controller'] = 'index';
 
-$route['api/app/version/(:any)']['GET'] = 'api/consultant/GetAppVersion/$1';
+$route['api/app/version/(:any)']['GET'] = 'api/patient/GetAppVersion/$1';
 
 //region Login & OTP Routes
 $route['api/public/auth/checkin']['POST'] = 'api/auth/checkin';
-$route['api/public/(:any)/otp/validate']['PUT'] = 'api/consultant/ValidateOTP/$1';
-$route['api/public/(:any)/otp/resend']['PUT'] = 'api/consultant/ResendOTP/$1';
-$route['api/otp/send/username']['PUT'] = 'api/consultant/SendOTPforUsername';
+$route['api/public/(:any)/otp/validate']['PUT'] = 'api/patient/ValidateOTP/$1';
+$route['api/public/(:any)/otp/resend']['PUT'] = 'api/patient/ResendOTP/$1';
+$route['api/otp/send/username']['PUT'] = 'api/patient/SendOTPforUsername';
 $route['api/public/auth/reset']['PUT'] = 'api/auth/ResetPassword';
 $route['api/public/(:any)/auth/change']['PUT'] = 'api/auth/ChangePassword/$1';
 //endregion

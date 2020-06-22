@@ -88,21 +88,21 @@ class Motpcode extends CI_Model
 		return false;
 	}
 
-	public function resend_otp($clinic_id = '')
+	public function resend_otp($public_id = '')
 	{
-		$login_details = $this->mlogin->get_login_for_entity($clinic_id);
+		$login_details = $this->mlogin->get_login_for_entity($public_id);
 
-		if ($this->get_otp_code($clinic_id) == null) {
+		if ($this->get_otp_code($public_id) == null) {
 
 			if ($login_details != null) {
 
-				return $this->create($clinic_id, $login_details->mobile);
+				return $this->create($public_id, $login_details->mobile);
 
 			} else {
 				return false;
 			}
 		} else {
-			return $this->messagesender->send_otp($login_details->mobile, $this->get_otp_code($clinic_id));
+			return $this->messagesender->send_otp($login_details->mobile, $this->get_otp_code($public_id));
 		}
 
 	}
