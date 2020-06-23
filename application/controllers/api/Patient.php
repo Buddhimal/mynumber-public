@@ -744,6 +744,58 @@ class Patient extends REST_Controller
         }
     }
 
+
+    public function GetAppointmentCount_get($session_id = '')
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $response = new stdClass();
+        if ($method == 'GET') {
+
+            $check_auth_client = $this->mmodel->check_auth_client();
+
+            if ($check_auth_client == true) {
+
+                if ($this->mclinicsessiondays->valid_session_day($session_id)) {
+
+                    $numbers_count = $this->mclinicappointment->get_appointment_count($session_id,AppointmentStatus::PENDING);
+
+                    $response->status = REST_Controller::HTTP_OK;
+                    $response->status_code = APIResponseCode::SUCCESS;
+                    $response->msg = 'Ongoing Number';
+                    $response->error_msg = NULL;
+                    $response->response['session_id'] = $session_id;
+                    $response->response['session_date'] = DateHelper::utc_date();
+                    $response->response['ongoing_number'] = $numbers_count;
+                    $this->response($response, REST_Controller::HTTP_OK);
+
+                } else {
+                    $response->status = REST_Controller::HTTP_BAD_REQUEST;
+                    $response->status_code = APIResponseCode::BAD_REQUEST;
+                    $response->msg = 'Invalid Session Id';
+                    $response->error_msg[] = 'Invalid Session Id';
+                    $response->response = NULL;
+                    $this->response($response, REST_Controller::HTTP_OK);
+                }
+
+
+            } else {
+                $response->status = REST_Controller::HTTP_UNAUTHORIZED;
+                $response->status_code = APIResponseCode::UNAUTHORIZED;
+                $response->msg = 'Unauthorized';
+                $response->response = NULL;
+                $response->error_msg[] = 'Invalid Authentication Key.';
+                $this->response($response, REST_Controller::HTTP_OK);
+            }
+        } else {
+            $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+            $response->status_code = APIResponseCode::METHOD_NOT_ALLOWED;
+            $response->msg = 'Method Not Allowed';
+            $response->response = NULL;
+            $response->error_msg[] = 'Invalid Request Method.';
+            $this->response($response, REST_Controller::HTTP_OK);
+        }
+    }
+
     //endregion
 
 

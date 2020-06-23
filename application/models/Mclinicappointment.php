@@ -16,6 +16,7 @@ class Mclinicappointment extends CI_Model
         $this->load->model('mvalidation');
         $this->load->model('appointmentserialnumber');
         $this->load->model('mclinicappointmenttrans');
+        $this->load->model('mpublic');
     }
 
 
@@ -92,6 +93,17 @@ class Mclinicappointment extends CI_Model
             $this->mmodel->insert($this->table, $this->post);
 
             if ($this->db->affected_rows() > 0) {
+
+                //create email record
+                $email_data['sender_name']=EmailSender::mynumber_info;
+                $email_data['send_to']=$this->mpublic->get_record()->email;
+                $email_data['template_id'] = EmailTemplate::public_new_appointment;
+                $email_data['content']=NULL;
+                $email_data['email_type_id']=EmailType::appointment_email;
+
+                $this->memail->set_data($email_data);
+                $this->memail->create();
+
                 return $this->get($appointment_id);
             }
         }
@@ -203,7 +215,7 @@ class Mclinicappointment extends CI_Model
             ->select('*')
             ->from($this->table)
             ->where('session_id', $session_id)
-            ->where('appointment_date', date("Y-m-d"))
+            ->where('appointment_date', DateHelper::utc_date())
             ->where('appointment_status', $status)
             ->where('is_active', 1)
             ->where('is_deleted', 0)

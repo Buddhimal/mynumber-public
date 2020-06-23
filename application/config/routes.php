@@ -70,6 +70,7 @@ $route['api/search/clinic/location/(:any)/(:any)']['GET'] = 'api/patient/SearchC
 $route['api/search/clinic/doctor/(:any)']['GET'] = 'api/patient/SearchClinicByDoctor/$1';
 $route['api/search/clinic/(:any)']['GET'] = 'api/patient/SearchClinicByName/$1';
 $route['api/clinic/(:any)']['GET'] = 'api/patient/ClinicByUniqueId/$1';
+$route['api/session/(:any)/ongoing']['GET'] = 'api/patient/GetAppointmentCount/$1';
 $route['api/public/(:any)/session/(:any)/number']['GET'] = 'api/patient/GetAppointmentNumber/$1/$2';
 $route['api/public/(:any)/session/(:any)/appointment']['POST'] = 'api/patient/BookAppointment/$1/$2';
 //endregion
