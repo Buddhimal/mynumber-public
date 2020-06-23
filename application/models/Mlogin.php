@@ -98,6 +98,20 @@ class Mlogin extends CI_Model
         return $result->row();
     }
 
+    public function get_login_for_entity_not_confirm($entity_id)
+    {
+        $result = $this->db
+            ->select('*')
+            ->from($this->table)
+            ->where('entity_id', $entity_id)
+            ->where('is_active', 1)
+//            ->where('is_confirmed', 1)
+            ->where('is_deleted', 0)
+            ->get();
+
+        return $result->row();
+    }
+
 
     public function get_login_for_username($username)
     {

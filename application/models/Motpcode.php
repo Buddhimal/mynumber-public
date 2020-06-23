@@ -90,7 +90,7 @@ class Motpcode extends CI_Model
 
 	public function resend_otp($public_id = '')
 	{
-		$login_details = $this->mlogin->get_login_for_entity($public_id);
+		$login_details = $this->mlogin->get_login_for_entity_not_confirm($public_id);
 
 		if ($this->get_otp_code($public_id) == null) {
 
