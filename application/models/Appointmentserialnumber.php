@@ -39,7 +39,9 @@ class Appointmentserialnumber extends CI_Model
 
 		$this->db->trans_start();
 
-		if ($this->get_appointment_number($patient_id, $session_id) == null) {
+        $number = $this->get_appointment_number($patient_id, $session_id);
+
+		if (is_null($number)) {
 
 			$this->post['id'] = $number_id;
 			$this->post['patient_id'] = $patient_id;
@@ -47,7 +49,7 @@ class Appointmentserialnumber extends CI_Model
 			$this->post['is_deleted'] = 0;
 			$this->post['is_active'] = 1;
 			$this->post['is_confirmed'] = 0;
-			$this->post['appointment_date'] = date("Y-m-d");
+			$this->post['appointment_date'] = DateHelper::slk_date();
 			$this->post['serial_number_id'] = $this->get_next_available_number($patient_id, $session_id);
 			$this->post['issued_at'] = date("Y-m-d H:i:s");
 			$this->post['expire_at'] = date('Y-m-d H:i:s', strtotime('+3 minutes', strtotime($this->post['issued_at'])));
@@ -63,7 +65,7 @@ class Appointmentserialnumber extends CI_Model
 			}
 
 		} else {
-			return $this->get_appointment_number($patient_id, $session_id);
+			return $number;
 		}
 
 		$this->db->trans_complete();
@@ -77,7 +79,7 @@ class Appointmentserialnumber extends CI_Model
 			->from($this->table)
 			->where('patient_id', $patient_id)
 			->where('session_id', $session_id)
-			->where('appointment_date', date("Y-m-d"))
+			->where('appointment_date', DateHelper::slk_date())
 			->where('expire_at >', date("Y-m-d H:i:s"))
 			->where('is_confirmed', 0)
 			->where('is_active', 1)
@@ -91,6 +93,8 @@ class Appointmentserialnumber extends CI_Model
 
 	public function get_next_available_number($patient_id = '', $session_id = '')
 	{
+        $slk_date = DateHelper::slk_date();
+
 		$res = $this->db
 			->query("SELECT 
 								sn.id AS serial_number_id,
@@ -107,7 +111,7 @@ class Appointmentserialnumber extends CI_Model
 									appointment_serial_number AS asn 
 								WHERE
 									( asn.is_confirmed = 1 OR '" . date("Y-m-d  H:i:s") . "' < asn.expire_at   ) 
-									AND asn.appointment_date = '" . date("Y-m-d") . "' 
+									AND asn.appointment_date = '" . $slk_date . "' 
 									AND asn.is_active = 1 
 									AND asn.is_deleted = 0 
 									AND asn.session_id='$session_id'

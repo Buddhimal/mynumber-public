@@ -17,6 +17,8 @@ class Mclinicappointment extends CI_Model
         $this->load->model('appointmentserialnumber');
         $this->load->model('mclinicappointmenttrans');
         $this->load->model('mpublic');
+        $this->load->model('mcommunicatoremailqueue','memail');
+
     }
 
 
@@ -75,7 +77,7 @@ class Mclinicappointment extends CI_Model
 
             $this->post['id'] = $appointment_id;
             $this->post['session_id'] = $session_id;
-            $this->post['appointment_date'] = date("Y-m-d");
+            $this->post['appointment_date'] = DateHelper::slk_date();
 //		$this->post['serial_number_id'] = $serial_number_id;
             $this->post['patient_id'] = $patient_id;
             // $this->post['is_canceled'] = 0;
@@ -94,9 +96,10 @@ class Mclinicappointment extends CI_Model
 
             if ($this->db->affected_rows() > 0) {
 
+
                 //create email record
                 $email_data['sender_name']=EmailSender::mynumber_info;
-                $email_data['send_to']=$this->mpublic->get_record()->email;
+                $email_data['send_to']=$this->mpublic->get($patient_id)->email;
                 $email_data['template_id'] = EmailTemplate::public_new_appointment;
                 $email_data['content']=NULL;
                 $email_data['email_type_id']=EmailType::appointment_email;
@@ -203,6 +206,7 @@ class Mclinicappointment extends CI_Model
         $this->db->select('id, patient_id, session_id, serial_number_id,appointment_date');
         $this->db->from($this->table);
         $this->db->where('session_id', $session_id);
+        $this->db->where('appointment_date', DateHelper::slk_date());
         $this->db->where('appointment_status !=', AppointmentStatus::CANCELED);
         $this->db->where('is_deleted', 0);
         $this->db->where('is_active', 1);
@@ -215,7 +219,7 @@ class Mclinicappointment extends CI_Model
             ->select('*')
             ->from($this->table)
             ->where('session_id', $session_id)
-            ->where('appointment_date', DateHelper::utc_date())
+            ->where('appointment_date', DateHelper::slk_date())
             ->where('appointment_status', $status)
             ->where('is_active', 1)
             ->where('is_deleted', 0)
@@ -227,7 +231,7 @@ class Mclinicappointment extends CI_Model
     public function get_cumulative_amount($session_id)
     {
 
-        $utc_date = DateHelper::utc_date(date("Y-m-d"));
+        $utc_date = DateHelper::slk_date(date("Y-m-d"));
 
         $res = $this->db
             ->select('COALESCE(sum(appointment_charge),0) as cumulative_amount')
