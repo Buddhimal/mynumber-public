@@ -6,103 +6,118 @@ require_once(APPPATH . 'entities/EntityClinicSession.php');
 class Mclinicsession extends CI_Model
 {
 
-    public $validation_errors = array();
-    private $post = array();
-    protected $table = "clinic_session";
+	public $validation_errors = array();
+	private $post = array();
+	protected $table = "clinic_session";
 
-    function __construct()
-    {
-        parent::__construct();
-        $this->load->model('mvalidation');
-        $this->load->model('mdoctor');
-    }
+	function __construct()
+	{
+		parent::__construct();
+		$this->load->model('mvalidation');
+		$this->load->model('mdoctor');
+	}
 
 
-    public function get($id)
-    {
-        $query_result = $this->get_record($id);
+	public function get($id)
+	{
+		$query_result = $this->get_record($id);
 
-        return ($query_result);
-    }
+		return ($query_result);
+	}
 
-    public function get_full_session($session_id)
-    {
-        $query_result = $this->get_record($session_id);
+	public function get_full_session($session_id)
+	{
+		$query_result = $this->get_record($session_id);
 
-        $sessions = new EntityClinicSession($query_result);
-        $sessions->days = $this->mclinicsessiondays->get_days_by_session($session_id);
-        $output[] = $sessions;
+		$sessions = new EntityClinicSession($query_result);
+		$sessions->days = $this->mclinicsessiondays->get_days_by_session($session_id);
+		$output[] = $sessions;
 
-        return $output;
-    }
+		return $output;
+	}
 
-    private function get_record($id)
-    {
-        $this->db->select('id,clinic_id,consultant,session_name,session_description,avg_time_per_patient,max_patients,');
-        $this->db->from($this->table);
-        $this->db->where('id', $id);
-        $this->db->where('is_deleted', 0);
-        $this->db->where('is_active', 1);
-        return $this->db->get()->row();
-    }
+	private function get_record($id)
+	{
+		$this->db->select('id,clinic_id,consultant,session_name,session_description,avg_time_per_patient,max_patients,');
+		$this->db->from($this->table);
+		$this->db->where('id', $id);
+		$this->db->where('is_deleted', 0);
+		$this->db->where('is_active', 1);
+		return $this->db->get()->row();
+	}
 
-    function valid_session($id)
-    {
-        $this->db->select('id');
-        $this->db->from($this->table);
-        $this->db->where('id', $id);
-        $this->db->where('is_deleted', 0);
-        $this->db->where('is_active', 1);
-        $result = $this->db->get();
+	function valid_session($id)
+	{
+		$this->db->select('id');
+		$this->db->from($this->table);
+		$this->db->where('id', $id);
+		$this->db->where('is_deleted', 0);
+		$this->db->where('is_active', 1);
+		$result = $this->db->get();
 
-        return ($result->num_rows() > 0);
-    }
+		return ($result->num_rows() > 0);
+	}
 
-    public function get_sessions($clinic_id)
-    {
-        $output = null;
+	public function get_sessions($clinic_id)
+	{
+		$output = null;
 
-        $all_sessions = $this->db
-            ->select('id,clinic_id,consultant,session_name,avg_time_per_patient,max_patients')
-            ->from(sprintf("%s S", $this->table))
-            ->where(sprintf("S.clinic_id='%s' and S.is_deleted=0 and S.is_active=1", $clinic_id))
-            ->get();
+		$all_sessions = $this->db
+			->select('id,clinic_id,consultant,session_name,avg_time_per_patient,max_patients')
+			->from(sprintf("%s S", $this->table))
+			->where(sprintf("S.clinic_id='%s' and S.is_deleted=0 and S.is_active=1", $clinic_id))
+			->get();
 
-        foreach ($all_sessions->result() as $session_data) {
-            // $output[] = new EntityClinicSession($session_data);
+		foreach ($all_sessions->result() as $session_data) {
+			// $output[] = new EntityClinicSession($session_data);
 
-            $result = $session_data;
-            $result->days = $this->mclinicsessiondays->get_days_by_session($session_data->id);
+			$result = $session_data;
+			$result->days = $this->mclinicsessiondays->get_days_by_session($session_data->id);
 
-            $output[] = $session_data;
-        }
-        return $output;
-    }
+			$output[] = $session_data;
+		}
+		return $output;
+	}
 
-//    public function get_sessions_for_day($clinic_id = '', $day = '')
-//    {
-//        $output = null;
-//
-//        $all_sessions = $this->db
-//            ->select("c.*,d.day")
-//            ->from('clinic_session as c')
-//            ->join('clinic_session_days as d', 'd.session_id=c.id')
-//            ->where(sprintf("c.clinic_id='%s' and c.is_deleted=0 and c.is_active=1 and d.is_deleted=0 and d.is_active=1", $clinic_id))
-//            ->where('d.day', $day)
-//            ->get();
-//
-////        DatabaseFunction::last_query();
-//
-//        foreach ($all_sessions->result() as $session_data) {
-//            $sessions = new EntityClinicSession($session_data);
-//            $sessions->days = $this->mclinicsessiondays->get_today_session($sessions->id, $day);
-//            $sessions->days->appointment_count = $this->mclinicappointment->get_appointment_count_for_today($sessions->id);
-//            $sessions->consultant = $this->mdoctor->get($sessions->consultant);
-//            $output[] = $sessions;
-//        }
-//
-//        return $output;
-//    }
+	public function get_sessions_for_day($clinic_id = '', $day = '')
+	{
+		$output = null;
+		$current_datetime = DateHelper::utc_datetime();
+
+		$all_sessions = $this->db
+			->select("s.*,d.day,d.starting_time,d.end_time")
+			->from('clinic_session as s')
+			->join('clinic_session_days as d', 'd.session_id=s.id')
+			->where(sprintf("s.clinic_id='%s' and s.is_deleted=0 and s.is_active=1 and d.is_deleted=0 and d.is_active=1", $clinic_id))
+			->where('d.day', $day)
+			->where('d.off', false)
+			->order_by("ABS('$current_datetime' - UNIX_TIMESTAMP(d.starting_time))")
+			->get();
+
+		foreach ($all_sessions->result() as $session_data) {
+
+			$sessions = new EntityClinicSession($session_data);
+			$sessions->days = $this->mclinicsessiondays->get_today_session($sessions->id, $day);
+			$sessions->days->appointment_count = $this->mclinicappointment->get_appointment_count_for_today($sessions->id);
+
+//			if ($this->mclinicsessiontrans->check_session_already_updated($sessions->id, SessionStatus::ON_THE_WAY))
+//				$sessions->days->on_the_way = false;
+//			else
+//				$sessions->days->on_the_way = true;
+
+			$current_session_status = $this->mclinicsessiontrans->get_last_states_of_session($sessions->id, DateHelper::slk_date());
+
+			if ($current_session_status == SessionStatus::PENDING && (DateHelper::is_time_diff(DateHelper::utc_time(), $session_data->starting_time))){
+				$sessions->days->session_status = SessionStatus::TIME_PASSED;
+			}
+			else{
+				$sessions->days->session_status = $current_session_status;
+				$sessions->consultant = $this->mdoctor->get($sessions->consultant);
+				$output[] = $sessions;
+			}
+		}
+		return $output;
+	}
 //
 //    public function get_sessions_for_clinic($clinic_id = '')
 //    {
@@ -174,9 +189,5 @@ class Mclinicsession extends CI_Model
 //        return gmdate("H:i:s", $total_time_elapsed);
 //    }
 
-
-    
-
-    
 
 }

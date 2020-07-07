@@ -1,4 +1,5 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 
 class EntityType
 {
@@ -36,11 +37,14 @@ class StatusCode{
 }
 
 class SessionStatus{
+	const PENDING = 0;
 	const START = 1;
 	const CANCELED = 2;
-	const TIME_REVERSED = 3;
+	const TIME_REVISED = 3;
 	const FINISHED = 4;
 	const TERMINATED = 5;
+	const ON_THE_WAY = 6;
+	const TIME_PASSED = 7;
 }
 
 class APIKeys{
@@ -67,31 +71,3 @@ class SerialNumberStatus{
     const CONFIRM = 1;
     const PENDING = 0;
 }
-
-
-//class DateHelper
-//{
-//
-//    public $minutes_to_add = 330;
-//
-//    public function utc_date($date){
-//
-//        $date = new DateTime($date);
-//        $date->add(new DateInterval('PT' . $this->minutes_to_add . 'M'));
-//        return $date->format('Y-m-d');
-//    }
-//
-//    function utc_datetime($date){
-//
-//        $date = new DateTime($date);
-//        $date->add(new DateInterval('PT' . $this->minutes_to_add . 'M'));
-//        return $date->format('Y-m-d H:i:s');
-//    }
-//
-//    function utc_time($date){
-//
-//        $date = new DateTime($date);
-//        $date->add(new DateInterval('PT' . $this->minutes_to_add . 'M'));
-//        return $date->format('H:i:s');
-//    }
-//}

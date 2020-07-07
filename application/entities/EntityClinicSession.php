@@ -9,7 +9,7 @@ class EntityClinicSession
 //	public $date= null;
 	public $avg_time_per_patient = null;
 	public $max_patients = null;
-	public $end_time = null;
+//	public $end_time = null;
 	public $consultant = null;
 	public $session_name = null;
 	public $session_description = null;
