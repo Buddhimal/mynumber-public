@@ -962,7 +962,7 @@ class Patient extends REST_Controller
 
                 if ($this->mlogin->check_valid_account($json_data['username'])) {
 
-                    if ($this->mlogin->get_login_for_username($json_data['username'])->entity_id != null) {
+                    if (isset($this->mlogin->get_login_for_username($json_data['username'])->entity_id)) {
 
                         $this->ResendOTP_put($this->mlogin->get_login_for_username($json_data['username'])->entity_id);
 
