@@ -1299,6 +1299,9 @@ class Patient extends REST_Controller
 
                 if ($this->mclinic->valid_clinic($clinic_id)) {
 
+					$clinic = $this->mclinic->get($clinic_id);
+					$clinic->location = $this->mlocations->get($clinic->location);
+
 
                     $sessions = $this->mclinicsession->get_sessions_for_day($clinic_id, DateHelper::utc_day());
 
@@ -1307,6 +1310,7 @@ class Patient extends REST_Controller
                         $response->status_code = APIResponseCode::SUCCESS;
                         $response->msg = 'Session Details for today';
                         $response->error_msg = NULL;
+                        $response->response['clinic'] = $clinic;
                         $response->response['sessions'] = $sessions;
                         $this->response($response, REST_Controller::HTTP_OK);
                     } else {
@@ -1314,6 +1318,7 @@ class Patient extends REST_Controller
                         $response->status_code = APIResponseCode::SUCCESS;
                         $response->msg = 'Session Details for Consultant';
                         $response->error_msg = NULL;
+                        $response->response['clinic'] = NULL;
                         $response->response['sessions'] = NULL;
                         $this->response($response, REST_Controller::HTTP_OK);
                     }
