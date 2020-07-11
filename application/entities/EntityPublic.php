@@ -7,6 +7,7 @@ class EntityPublic
 	public $salutation = null;
 	public $firstname = null;
 	public $lastname = null;
+	public $address = null;
 	public $nic = null;
 	public $dob = null;
 	public $age = null;
@@ -22,6 +23,7 @@ class EntityPublic
 			$this->salutation = $data->salutation;
 			$this->firstname = $data->first_name;
 			$this->lastname = $data->last_name;
+			$this->address = $data->address;
 			$this->nic = $data->nic;
 			$this->dob = $data->dob;
 			if(!is_null($data->dob)){

@@ -22,6 +22,8 @@ class Mpublic extends CI_Model
 			$this->post['first_name'] = $post_array['firstname'];
 		if (isset($post_array['lastname']))
 			$this->post['last_name'] = $post_array['lastname'];
+		if (isset($post_array['address']))
+			$this->post['address'] = $post_array['address'];
 		if (isset($post_array['nic']))
 			$this->post['nic'] = $post_array['nic'];
 		if (isset($post_array['dob']))
@@ -52,6 +54,11 @@ class Mpublic extends CI_Model
 
 		if (!(isset($this->post['last_name']) && $this->post['last_name'] != NULL && $this->post['last_name'] != '')) {
 			array_push($this->validation_errors, 'Invalid Last Name.');
+			$result = false;
+		}
+
+		if (!(isset($this->post['address']) && $this->post['address'] != NULL && $this->post['address'] != '')) {
+			array_push($this->validation_errors, 'Invalid Address.');
 			$result = false;
 		}
 
