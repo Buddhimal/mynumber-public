@@ -213,6 +213,29 @@ class Mclinicappointment extends CI_Model
 		return $patient;
 	}
 
+	public function get_ongoing_number($session_id='')
+	{
+		$res = $this->db
+			->select('sn.serial_number')
+			->from($this->table.' as ca')
+			->join('serial_number as sn','sn.id=ca.serial_number_id')
+			->where('ca.session_id', $session_id)
+			->where('ca.appointment_date', DateHelper::slk_date())
+			->where('ca.appointment_status', AppointmentStatus::PENDING)
+			->where('ca.is_active', 1)
+			->where('ca.is_deleted', 0)
+			->where('sn.is_active', 1)
+			->where('sn.is_deleted', 0)
+			->order_by('sn.serial_number','ASC')
+			->limit(1)
+			->get();
+
+		if($res->num_rows()>0)
+			return $res->row()->serial_number;
+
+		return null;
+	}
+
 	public function get_appointments_today($patient_id = '')
 	{
 		$slk_date = DateHelper::slk_date();
@@ -222,6 +245,7 @@ class Mclinicappointment extends CI_Model
 											a.patient_id,
 											a.session_id,
 											a.id as appointment_id,
+											a.appointment_status,
 											sn.serial_number,
 											concat(d.salutation,' ',d.first_name,' ',d.last_name) as doctor_name,
 											concat(c.clinic_name,' Clinic') as clinic_name,
