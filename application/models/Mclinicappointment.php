@@ -21,6 +21,100 @@ class Mclinicappointment extends CI_Model
 
 	}
 
+	public function set_data($post_array)
+	{
+		if (isset($post_array['serial_number_id']))
+			$this->post['serial_number_id'] = $post_array['serial_number_id'];
+		if (isset($post_array['name']))
+			$this->post['patient_name'] = $post_array['name'];
+		if (isset($post_array['address']))
+			$this->post['patient_address'] = $post_array['address'];
+		if (isset($post_array['phone']))
+			$this->post['patient_phone'] = $post_array['phone'];
+		if (isset($post_array['is_myself']))
+			$this->post['is_myself'] = $post_array['is_myself'];
+	}
+
+	public function is_valid()
+	{
+		$result = true;
+
+		if (!(isset($this->post['serial_number_id']) && $this->post['serial_number_id'] != NULL && $this->post['serial_number_id'] != '')) {
+			array_push($this->validation_errors, 'Invalid serial number.');
+			$result = false;
+		}
+		if (!(isset($this->post['patient_name']) && $this->post['patient_name'] != NULL && $this->post['patient_name'] != '')) {
+			array_push($this->validation_errors, 'Invalid patient name.');
+			$result = false;
+		}
+		if (!(isset($this->post['patient_address']) && $this->post['patient_address'] != NULL && $this->post['patient_address'] != '')) {
+			array_push($this->validation_errors, 'Invalid patient address.');
+			$result = false;
+		}
+		if (!(isset($this->post['patient_phone']) && $this->post['patient_phone'] != NULL && $this->post['patient_phone'] != '')) {
+			array_push($this->validation_errors, 'Invalid patient phone.');
+			$result = false;
+		}
+
+		return $result;
+	}
+
+	/*
+	*
+	*/
+	public function create($patient_id, $session_id, $appointment_serial_number_id)
+	{
+
+		$this->db->trans_start();
+
+		$result = null;
+
+		//confirm number
+		if ($this->appointmentserialnumber->confirm_number($appointment_serial_number_id)) {
+
+			$appointment_id = trim($this->mmodel->getGUID(), '{}');
+
+			$this->post['id'] = $appointment_id;
+			$this->post['session_id'] = $session_id;
+			$this->post['appointment_date'] = DateHelper::slk_date();
+//		$this->post['serial_number_id'] = $serial_number_id;
+			$this->post['patient_id'] = $patient_id;
+			// $this->post['is_canceled'] = 0;
+			$this->post['appointment_status'] = AppointmentStatus::PENDING;
+			$this->post['appointment_charge'] = Payments::DEFAULT_CHARGE;
+			$this->post['appointment_status_updated'] = date("Y-m-d H:i:s");
+			$this->post['is_deleted'] = 0;
+			$this->post['is_active'] = 1;
+			$this->post['updated'] = date("Y-m-d H:i:s");
+			$this->post['created'] = date("Y-m-d H:i:s");
+			$this->post['updated_by'] = $appointment_id;
+			$this->post['created_by'] = $appointment_id;
+
+			//create appointment
+			$this->mmodel->insert($this->table, $this->post);
+
+			if ($this->db->affected_rows() > 0) {
+
+
+				//create email record
+				$email_data['sender_name']=EmailSender::mynumber_info;
+				$email_data['send_to']=$this->mpublic->get($patient_id)->email;
+				$email_data['template_id'] = EmailTemplate::public_new_appointment;
+				$email_data['content']=NULL;
+				$email_data['email_type_id']=EmailType::appointment_email;
+
+				$this->memail->set_data($email_data);
+				$this->memail->create();
+
+				return $this->get($appointment_id);
+			}
+		}
+
+		$this->db->trans_complete();
+
+		return $result;
+	}
+
 
 	public function get($id)
 	{
