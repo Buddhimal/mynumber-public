@@ -892,6 +892,54 @@ class Patient extends REST_Controller
         }
     }
 
+    public function GetAppointmentsHistory_get($patient_id = '',$month='')
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $response = new stdClass();
+        if ($method == 'GET') {
+
+            $check_auth_client = $this->mmodel->check_auth_client();
+
+            if ($check_auth_client == true) {
+
+                if ($this->mpublic->valid_public($patient_id)) {
+
+					$appointments = $this->mclinicappointment->get_appointments_monthly($patient_id,$month);
+
+                    $response->status = REST_Controller::HTTP_OK;
+                    $response->status_code = APIResponseCode::SUCCESS;
+                    $response->msg = 'Appointments Today';
+                    $response->error_msg = NULL;
+                    $response->response['appointments']=$appointments;
+                    $this->response($response, REST_Controller::HTTP_OK);
+
+                } else {
+                    $response->status = REST_Controller::HTTP_BAD_REQUEST;
+                    $response->status_code = APIResponseCode::BAD_REQUEST;
+                    $response->msg = 'Invalid Public Id';
+                    $response->error_msg[] = 'Invalid Public Id';
+                    $response->response = NULL;
+                    $this->response($response, REST_Controller::HTTP_OK);
+                }
+
+            } else {
+                $response->status = REST_Controller::HTTP_UNAUTHORIZED;
+                $response->status_code = APIResponseCode::UNAUTHORIZED;
+                $response->msg = 'Unauthorized';
+                $response->response = NULL;
+                $response->error_msg[] = 'Invalid Authentication Key.';
+                $this->response($response, REST_Controller::HTTP_OK);
+            }
+        } else {
+            $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+            $response->status_code = APIResponseCode::METHOD_NOT_ALLOWED;
+            $response->msg = 'Method Not Allowed';
+            $response->response = NULL;
+            $response->error_msg[] = 'Invalid Request Method.';
+            $this->response($response, REST_Controller::HTTP_OK);
+        }
+    }
+
     public function GetOngoingNumber_get($session_id = '')
     {
         $method = $_SERVER['REQUEST_METHOD'];

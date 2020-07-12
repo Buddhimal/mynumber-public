@@ -287,4 +287,55 @@ class Mclinicappointment extends CI_Model
 		return $appointments;
 	}
 
+	public function get_appointments_monthly($patient_id = '',$month='')
+	{
+		$slk_date = DateHelper::slk_date();
+		$appointments = null;
+
+		$res = $this->db->query("SELECT
+											a.patient_id,
+											a.session_id,
+											a.id as appointment_id,
+											a.appointment_status,
+											sn.serial_number,
+											concat(d.salutation,' ',d.first_name,' ',d.last_name) as doctor_name,
+											concat(c.clinic_name,' Clinic') as clinic_name,
+											concat(l.street_address,', ',l.city) as clinic_address,
+											l.lat,
+											l.long,
+											sd.starting_time,
+											sd.end_time
+										FROM
+											clinic_appointments AS a
+											INNER JOIN serial_number AS sn ON a.serial_number_id = sn.id 
+											INNER JOIN clinic_session AS s ON s.id = a.session_id
+											INNER JOIN clinic_session_days AS sd ON sd.`day` = DAYOFWEEK(a.appointment_date) AND sd.session_id=s.id
+											INNER JOIN doctor AS d ON d.id = s.consultant
+											INNER JOIN clinic AS c ON c.id = s.clinic_id
+											INNER JOIN locations AS l ON l.id = c.location_id
+										WHERE 
+											a.patient_id = '$patient_id'
+											AND MONTH(a.appointment_date) = $month
+											AND a.is_deleted = 0 
+											AND a.is_active = 1
+											AND sn.is_deleted = 0 
+											AND sn.is_active = 1
+											AND s.is_deleted = 0 
+											AND s.is_active = 1
+											AND sd.is_deleted = 0 
+											AND sd.is_active = 1
+											AND d.is_deleted = 0 
+											AND d.is_active = 1
+											AND c.is_deleted = 0 
+											AND c.is_active = 1
+											AND l.is_deleted = 0 
+											AND l.is_active = 1");
+
+		foreach ($res->result() as $appointment){
+			$appointments[] = new EntityAppointments($appointment);
+		}
+
+		return $appointments;
+	}
+
 }
