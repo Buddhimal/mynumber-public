@@ -1397,7 +1397,7 @@ class Patient extends REST_Controller
                 if ($this->mclinic->valid_clinic($clinic_id)) {
 
 
-                    $sessions = $this->mclinicsession->get_sessions_for_day($clinic_id, DateHelper::utc_day());
+                    $sessions = $this->mclinicsession->get_sessions_ongoing($clinic_id, DateHelper::utc_day());
 
                     if (!is_null($sessions)) {
                         $response->status = REST_Controller::HTTP_OK;
