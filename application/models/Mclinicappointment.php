@@ -239,6 +239,7 @@ class Mclinicappointment extends CI_Model
 	public function get_appointments_today($patient_id = '')
 	{
 		$slk_date = DateHelper::slk_date();
+		$slk_day = DateHelper::utc_day();
 		$appointments = null;
 
 		$res = $this->db->query("SELECT
@@ -259,7 +260,7 @@ class Mclinicappointment extends CI_Model
 											clinic_appointments AS a
 											INNER JOIN serial_number AS sn ON a.serial_number_id = sn.id 
 											INNER JOIN clinic_session AS s ON s.id = a.session_id
-											INNER JOIN clinic_session_days AS sd ON sd.`day` = DAYOFWEEK(a.appointment_date) AND sd.session_id=s.id
+											INNER JOIN clinic_session_days AS sd ON sd.`day` = $slk_day AND sd.session_id=s.id
 											INNER JOIN doctor AS d ON d.id = s.consultant
 											INNER JOIN clinic AS c ON c.id = s.clinic_id
 											INNER JOIN locations AS l ON l.id = c.location_id
