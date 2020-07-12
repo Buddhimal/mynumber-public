@@ -6,6 +6,7 @@ class EntityAppointments
     public $session_id = null;
     public $appointment_id = null;
     public $appointment_status = null;
+    public $appointment_date = null;
     public $serial_number = null;
 	public $doctor_name = null;
 	public $starting_time = null;
@@ -22,6 +23,7 @@ class EntityAppointments
             $this->session_id = $data->session_id;
             $this->appointment_id = $data->appointment_id;
             $this->appointment_status = $data->appointment_status;
+            $this->appointment_date = $data->appointment_date;
             $this->serial_number = $data->serial_number;
             $this->doctor_name = $data->doctor_name;
             $this->clinic_name = $data->clinic_name;
