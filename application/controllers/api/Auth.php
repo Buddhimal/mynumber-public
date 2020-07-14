@@ -189,7 +189,7 @@ class Auth extends REST_Controller
         }
     }
 
-    public function ChangePassword_put($clinic_id = '')
+    public function ChangePassword_put($public_id = '')
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $response = new stdClass();
@@ -199,17 +199,17 @@ class Auth extends REST_Controller
 
             if ($check_auth_client == true) {
 
-                if ($this->mclinic->valid_clinic($clinic_id)) {
+                if ($this->mpublic->valid_public($public_id)) {
 
                     $inputs = $this->put('json_data');
 
-                    $username = $this->mlogin->check_old_password($clinic_id, $inputs['old_password']); // returns username if old password match
+                    $username = $this->mlogin->check_old_password($public_id, $inputs['old_password']); // returns username if old password match
 
                     if ($this->mvalidation->valid_password($inputs['new_password'])) {
 
                         if (!is_null($username)) {
 
-                            if ($this->mlogin->change_password($clinic_id, $this->utilityhandler->_salt($inputs['new_password'], $username))) {
+                            if ($this->mlogin->change_password($public_id, $this->utilityhandler->_salt($inputs['new_password'], $username))) {
                                 $response->status = REST_Controller::HTTP_OK;
                                 $response->status_code = APIResponseCode::SUCCESS;
                                 $response->msg = 'Password Reset Successful';
@@ -244,8 +244,8 @@ class Auth extends REST_Controller
                 } else {
                     $response->status = REST_Controller::HTTP_BAD_REQUEST;
                     $response->status_code = APIResponseCode::BAD_REQUEST;
-                    $response->msg = 'Invalid Clinic Id';
-                    $response->error_msg[] = 'Invalid Clinic Id';
+                    $response->msg = 'Invalid Public Id';
+                    $response->error_msg[] = 'Invalid Public Id';
                     $response->response = NULL;
                     $this->response($response, REST_Controller::HTTP_OK);
                 }

@@ -318,6 +318,7 @@ class Patient extends REST_Controller
                 $public = $this->mpublic->get($public_id);
 
                 $response->status = REST_Controller::HTTP_OK;
+				$response->status_code = APIResponseCode::SUCCESS;
                 $response->msg = 'Public Details';
                 $response->error_msg = NULL;
                 $response->response = $public;
@@ -326,6 +327,7 @@ class Patient extends REST_Controller
 
             } else {
                 $response->status = REST_Controller::HTTP_UNAUTHORIZED;
+				$response->status_code = APIResponseCode::HTTP_UNAUTHORIZED;
                 $response->msg = 'Unauthorized';
                 $response->response = NULL;
                 $response->error_msg = 'Invalid Authentication Key.';
@@ -333,6 +335,7 @@ class Patient extends REST_Controller
             }
         } else {
             $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+			$response->status_code = APIResponseCode::HTTP_METHOD_NOT_ALLOWED;
             $response->msg = 'Method Not Allowed';
             $response->response = NULL;
             $response->error_msg = 'Invalid Request Method.';
@@ -362,26 +365,30 @@ class Patient extends REST_Controller
                     if (!is_null($public)) {
 
                         $response->status = REST_Controller::HTTP_OK;
+						$response->status_code = APIResponseCode::SUCCESS;
                         $response->msg = 'Public Updated Successfully';
                         $response->error_msg = NULL;
                         $response->response = $public;
                         $this->response($response, REST_Controller::HTTP_OK);
                     } else {
                         $response->status = REST_Controller::HTTP_OK;
-                        $response->msg = 'No Records to Update';
+						$response->status_code = APIResponseCode::SUCCESS;
+						$response->msg = 'No Records to Update';
                         $response->error_msg = NULL;
                         $response->response = $public;
                         $this->response($response, REST_Controller::HTTP_OK);
                     }
                 } else {
                     $response->status = REST_Controller::HTTP_BAD_REQUEST;
-                    $response->msg = 'Validation Failed.';
+					$response->status_code = APIResponseCode::HTTP_BAD_REQUEST;
+					$response->msg = 'Validation Failed.';
                     $response->response = NULL;
                     $response->error_msg = $this->mpublic->validation_errors;
                     $this->response($response, REST_Controller::HTTP_OK);
                 }
             } else {
                 $response->status = REST_Controller::HTTP_UNAUTHORIZED;
+				$response->status_code = APIResponseCode::HTTP_UNAUTHORIZED;
                 $response->msg = 'Unauthorized';
                 $response->response = NULL;
                 $response->error_msg = 'Invalid Authentication Key.';
@@ -389,6 +396,7 @@ class Patient extends REST_Controller
             }
         } else {
             $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+			$response->status_code = APIResponseCode::HTTP_METHOD_NOT_ALLOWED;
             $response->msg = 'Method Not Allowed';
             $response->response = NULL;
             $response->error_msg = 'Invalid Request Method.';
@@ -1061,14 +1069,23 @@ class Patient extends REST_Controller
 
                     if (isset($this->mlogin->get_login_for_username($json_data['username'])->entity_id)) {
 
-                        $this->ResendOTP_put($this->mlogin->get_login_for_username($json_data['username'])->entity_id);
+						$public_id = $this->mlogin->get_login_for_username($json_data['username'])->entity_id;
+
+						if ($this->motpcode->resend_otp($public_id)) {
+							$response->status = REST_Controller::HTTP_OK;
+							$response->status_code = APIResponseCode::SUCCESS;
+							$response->msg = 'OTP send successfully..';
+							$response->error_msg = NULL;
+							$response->response['public_id'] = $public_id;
+							$this->response($response, REST_Controller::HTTP_OK);
+						}
 
                     } else {
                         $response->status = REST_Controller::HTTP_BAD_REQUEST;
                         $response->status_code = APIResponseCode::BAD_REQUEST;
                         $response->msg = 'Invalid Username..';
                         $response->error_msg[] = 'Invalid Username..';
-                        $response->response = NULL;
+						$response->response['public_id'] = $public_id;
                         $this->response($response, REST_Controller::HTTP_OK);
                     }
                 } else {
