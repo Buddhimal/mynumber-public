@@ -66,6 +66,7 @@ $route['api/public/(:any)/auth/change']['PUT'] = 'api/auth/ChangePassword/$1';
 //region Public Routes
 $route['api/public']['POST'] = 'api/patient/RegisterPublic';
 $route['api/public/(:any)']['GET'] = 'api/patient/PublicByUniqueId/$1';
+$route['api/public/(:any)']['PUT'] = 'api/patient/UpdatePublic/$1';
 $route['api/public/(:any)/payment/due']['GET'] = 'api/patient/GetPaymentDues/$1';
 $route['api/public/(:any)/appointments/today']['GET'] = 'api/patient/GetAppointmentsToday/$1';
 $route['api/public/(:any)/appointments/monthly/(:any)']['GET'] = 'api/patient/GetAppointmentsHistory/$1/$2';

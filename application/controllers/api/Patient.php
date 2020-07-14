@@ -380,7 +380,7 @@ class Patient extends REST_Controller
                     }
                 } else {
                     $response->status = REST_Controller::HTTP_BAD_REQUEST;
-					$response->status_code = APIResponseCode::HTTP_BAD_REQUEST;
+					$response->status_code = APIResponseCode::BAD_REQUEST;
 					$response->msg = 'Validation Failed.';
                     $response->response = NULL;
                     $response->error_msg = $this->mpublic->validation_errors;
