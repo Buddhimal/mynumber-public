@@ -136,6 +136,12 @@ class Mpublic extends CI_Model
 		if (isset($this->post['patient_code']) && $this->post['patient_code'] != $current_public_data->patient_code)
 			$update_data['patient_code'] = $this->post['patient_code'];
 
+		if (isset($this->post['dob']) && $this->post['dob'] != $current_public_data->patient_code)
+			$update_data['dob'] = $this->post['dob'];
+
+		if (isset($this->post['address']) && $this->post['address'] != $current_public_data->patient_code)
+			$update_data['address'] = $this->post['address'];
+
 		if (sizeof($update_data) > 0) {
 			$update_data['updated'] = date("Y-m-d H:i:s");
 			$update_data['updated_by'] = $public_id;
