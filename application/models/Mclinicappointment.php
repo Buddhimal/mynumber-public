@@ -95,7 +95,9 @@ class Mclinicappointment extends CI_Model
 
 			if ($this->db->affected_rows() > 0) {
 
-//				$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::CancelSessionSMS((array)$patient));
+				$appointment = $this->get_appointment_full_detail($appointment_id);
+
+				$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::NewAppointmentSMS((array)$appointment));
 
 				//create email record
 				$email_data['sender_name']=EmailSender::mynumber_info;
@@ -340,6 +342,49 @@ class Mclinicappointment extends CI_Model
 		}
 
 		return $appointments;
+	}
+
+	public function get_appointment_full_detail($appointment_id)
+	{
+		$res=$this->db
+			->query("SELECT
+                            ca.id,
+                            ca.id as appointment_id,
+                            ca.patient_name,
+                            ca.patient_address,
+                            ca.patient_phone,
+                            CONCAT(  d.first_name, ' ', d.last_name ) AS doctor_name,
+                            c.clinic_name,
+                            l.city AS clinic_city,
+                            ca.appointment_date,
+                            sn.serial_number,
+                            sd.starting_time 
+                        FROM
+                            clinic_appointments AS ca
+                            INNER JOIN clinic_session AS s ON ca.session_id = s.id
+                            INNER JOIN doctor AS d ON s.consultant = d.id
+                            INNER JOIN serial_number AS sn ON ca.serial_number_id = sn.id
+                            INNER JOIN clinic_session_days AS sd ON s.id = sd.session_id 	
+                            INNER JOIN clinic AS c ON c.id=s.clinic_id 
+                            INNER JOIN locations AS l ON l.id = c.location_id
+                        WHERE 
+                         	ca.id='$appointment_id'
+                            AND ca.is_canceled=0
+                            AND ca.is_active=1
+                            AND ca.is_deleted=0
+                            AND d.is_active=1
+                            AND d.is_deleted=0
+                            AND sn.is_active=1
+                            AND sn.is_deleted=0
+                            AND sd.is_active=1
+                            AND sd.is_deleted=0
+                            AND c.is_active=1
+                            AND c.is_deleted=0
+                            AND l.is_active=1
+                            AND l.is_deleted=0                        
+                        ");
+
+		return $res->row();
 	}
 
 }
