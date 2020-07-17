@@ -18,6 +18,7 @@ class Mclinicappointment extends CI_Model
 		$this->load->model('mclinicappointmenttrans');
 		$this->load->model('mpublic');
 		$this->load->model('mcommunicatoremailqueue', 'memail');
+		$this->load->library('Messagesender');
 
 	}
 
