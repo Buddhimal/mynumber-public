@@ -66,6 +66,11 @@ class Mclinicappointment extends CI_Model
 	public function create($patient_id, $session_id, $appointment_serial_number_id)
 	{
 
+//		$appointment = $this->get_appointment_full_detail('DBA4F807-B99B-4EAA-8840-B525F2335FCF');
+//		$data=((array)$appointment);
+//		$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::NewAppointmentSMS((array)$appointment));
+//		die();
+
 		$this->db->trans_start();
 
 		$result = null;
@@ -80,7 +85,7 @@ class Mclinicappointment extends CI_Model
 			$this->post['appointment_date'] = DateHelper::slk_date();
 //		$this->post['serial_number_id'] = $serial_number_id;
 			$this->post['patient_id'] = $patient_id;
-			// $this->post['is_canceled'] = 0;
+			 $this->post['is_canceled'] = 0;
 			$this->post['appointment_status'] = AppointmentStatus::PENDING;
 			$this->post['appointment_charge'] = Payments::DEFAULT_CHARGE;
 			$this->post['appointment_status_updated'] = date("Y-m-d H:i:s");
@@ -97,6 +102,10 @@ class Mclinicappointment extends CI_Model
 			if ($this->db->affected_rows() > 0) {
 
 				$appointment = $this->get_appointment_full_detail($appointment_id);
+
+				var_dump((array($appointment)));
+				var_dump(DatabaseFunction::last_query());
+				die();
 
 				$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::NewAppointmentSMS((array)$appointment));
 
@@ -347,6 +356,8 @@ class Mclinicappointment extends CI_Model
 
 	public function get_appointment_full_detail($appointment_id)
 	{
+		$day = DateHelper::utc_day();
+
 		$res=$this->db
 			->query("SELECT
                             ca.id,
@@ -369,7 +380,8 @@ class Mclinicappointment extends CI_Model
                             INNER JOIN clinic AS c ON c.id=s.clinic_id 
                             INNER JOIN locations AS l ON l.id = c.location_id
                         WHERE 
-                         	ca.id='$appointment_id'
+                        	$day=sd.day
+                         	AND ca.id='$appointment_id'
                             AND ca.is_canceled=0
                             AND ca.is_active=1
                             AND ca.is_deleted=0

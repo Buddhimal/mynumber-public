@@ -22,7 +22,7 @@ class SMSTemplate{
         $myDateTime = DateTime::createFromFormat('H:i:s', $data['starting_time']);
         $appointment_time = $myDateTime->format('h:i A');
 
-        return 'Ayubowan ' . $data['patient_name'] . '! Your appointment No.'.$data['serial_number'].' with Dr. '.$data['doctor_name'] .' at Clinic '.$data['clinic_name'].' '.$data['clinic_city'].', on '.$appointment_date.' '.$appointment_time.' is confirmed. please visit on time';
+        return 'Ayubowan ' . $data['patient_name'] . '! Your appointment No. '.$data['serial_number'].' with Dr. '.$data['doctor_name'] .' at Clinic '.$data['clinic_name'].' '.$data['clinic_city'].', on '.$appointment_date.' '.$appointment_time.' is confirmed. please visit on time.';
     }
 
 }
