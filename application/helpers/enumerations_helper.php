@@ -51,6 +51,7 @@ class APIKeys{
     const SMS_API_KEY = 'eE1A9BvAe0ginsLlP9nhXvCbPAD5jJBw';
     const SMS_API_TOKEN = '2rRC1591199529';
     const SMS_SENDER_ID = 'MyNumber.lk';
+	const PATIENT_API_KEY = 'E80C9BDE-3CC2-459B-991F-833F5356D731';
 }
 
 class Payments{

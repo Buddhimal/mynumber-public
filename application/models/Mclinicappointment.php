@@ -95,6 +95,7 @@ class Mclinicappointment extends CI_Model
 
 			if ($this->db->affected_rows() > 0) {
 
+//				$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::CancelSessionSMS((array)$patient));
 
 				//create email record
 				$email_data['sender_name']=EmailSender::mynumber_info;

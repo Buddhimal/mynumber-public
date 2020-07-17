@@ -12,7 +12,7 @@ class Mmodel extends CI_Model
 
 
 //	var $client_service = "frontend-client";
-	var $auth_key       = "simplerestapi";
+	var $auth_key       = APIKeys::PATIENT_API_KEY;
 
 
 	public function check_auth_client(){
