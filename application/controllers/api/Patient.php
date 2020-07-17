@@ -229,67 +229,69 @@ class Patient extends REST_Controller
                 // Passing post array to the model.
                 $this->mpublic->set_data($json_data);
 
-                // model it self will validate the input data
-                if ($this->mpublic->is_valid()) {
+				if ($this->mvalidation->already_exists('public', 'email', $json_data['email']) != TRUE)
+				{
+					// model it self will validate the input data
+					if ($this->mpublic->is_valid()) {
 
-                    // create the doctor record as the given data is valid
-                    $public = $this->mpublic->create();
+						// create the doctor record as the given data is valid
+						$public = $this->mpublic->create();
 
-//                    if (!is_null($public)) {
-//                        $response->status = REST_Controller::HTTP_OK;
-//                        $response->msg = 'New Public Added Successfully';
-//                        $response->error_msg = NULL;
-//                        $response->response = $public;
-//                        $this->response($response, REST_Controller::HTTP_OK);
-//                    }
+						if (!is_null($public)) {
 
-                    if (!is_null($public)) {
+							$login_data['username'] = $json_data['email'];
+							$login_data['password'] = $json_data["password"];
+							$login_data['mobile'] = $json_data["telephone"];
 
-                        $login_data['username'] = $json_data['email'];
-                        $login_data['password'] = $json_data["password"];
-                        $login_data['mobile'] = $json_data["telephone"];
+							$this->mlogin->set_data($login_data);
 
-                        $this->mlogin->set_data($login_data);
+							if ($this->mlogin->is_valid()) {
 
-                        if ($this->mlogin->is_valid()) {
+								$login = $this->mlogin->create($public->id, EntityType::Patient);// return true or false
 
-                            $login = $this->mlogin->create($public->id, EntityType::Patient);// return true or false
+								if ($login) {
+									$this->motpcode->create($public->id, $login_data['mobile']);
+								}
 
-                            if ($login) {
-                                $this->motpcode->create($public->id, $login_data['mobile']);
-                            }
+								$response->status = REST_Controller::HTTP_OK;
+								$response->status_code = APIResponseCode::SUCCESS;
+								$response->msg = 'New Public Added Successfully';
+								$response->error_msg = NULL;
+								$response->response = $public;
+								$this->response($response, REST_Controller::HTTP_OK);
+							} else {
+								$response->status = REST_Controller::HTTP_BAD_REQUEST;
+								$response->msg = 'Validation Failed.';
+								$response->response = NULL;
+								$response->error_msg = $this->mlogin->validation_errors;
+								$this->response($response, REST_Controller::HTTP_OK);
+							}
 
-                            $response->status = REST_Controller::HTTP_OK;
-                            $response->status_code = APIResponseCode::SUCCESS;
-                            $response->msg = 'New Public Added Successfully';
-                            $response->error_msg = NULL;
-                            $response->response = $public;
-                            $this->response($response, REST_Controller::HTTP_OK);
-                        } else {
-                            $response->status = REST_Controller::HTTP_BAD_REQUEST;
-                            $response->msg = 'Validation Failed.';
-                            $response->response = NULL;
-                            $response->error_msg = $this->mlogin->validation_errors;
-                            $this->response($response, REST_Controller::HTTP_OK);
-                        }
+						} else {
+							$response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
+							$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
+							$response->msg = NULL;
+							$response->error_msg[] = 'Internal Server Error';
+							$response->response = NULL;
+							$this->response($response, REST_Controller::HTTP_OK);
+						}
 
-                    } else {
-                        $response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
-                        $response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
-                        $response->msg = NULL;
-                        $response->error_msg[] = 'Internal Server Error';
-                        $response->response = NULL;
-                        $this->response($response, REST_Controller::HTTP_OK);
-                    }
-
-                } else {
-                    $response->status = REST_Controller::HTTP_BAD_REQUEST;
-                    $response->msg = 'Validation Failed.';
-                    $response->response = NULL;
-                    $response->error_msg = $this->mpublic->validation_errors;
-                    $this->response($response, REST_Controller::HTTP_OK);
-                }
-            } else {
+					} else {
+						$response->status = REST_Controller::HTTP_BAD_REQUEST;
+						$response->msg = 'Validation Failed.';
+						$response->response = NULL;
+						$response->error_msg = $this->mpublic->validation_errors;
+						$this->response($response, REST_Controller::HTTP_OK);
+					}
+				} else {
+					$response->status = REST_Controller::HTTP_BAD_REQUEST;
+					$response->status_code = APIResponseCode::BAD_REQUEST;
+					$response->msg = 'Validation Failed.';
+					$response->response = NULL;
+					$response->error_msg = 'Email Already Exists.';
+					$this->response($response, REST_Controller::HTTP_OK);
+				}
+			} else {
                 $response->status = REST_Controller::HTTP_UNAUTHORIZED;
                 $response->msg = 'Unauthorized';
                 $response->response = NULL;
