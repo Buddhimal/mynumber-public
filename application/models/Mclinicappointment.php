@@ -103,10 +103,6 @@ class Mclinicappointment extends CI_Model
 
 				$appointment = $this->get_appointment_full_detail($appointment_id);
 
-				var_dump((array($appointment)));
-				var_dump(DatabaseFunction::last_query());
-				die();
-
 				$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::NewAppointmentSMS((array)$appointment));
 
 				//create email record
