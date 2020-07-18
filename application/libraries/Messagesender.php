@@ -6,7 +6,7 @@ class Messagesender
 {
 
 
-    public function send_otp($Mobile, $TEXT)
+    public function send_otp_new($Mobile, $TEXT)
     {
         $newsletters = new Newsletterslk;
         $newsletters->setUser(APIKeys::SMS_API_KEY, APIKeys::SMS_API_TOKEN);// Initializing User Api Key and Api Token
@@ -24,6 +24,23 @@ class Messagesender
         else
             return false;
     }
+
+	public function send_sms_new($Mobile, $TEXT)
+	{
+		$newsletters = new Newsletterslk;
+		$newsletters->setUser(APIKeys::SMS_API_KEY, APIKeys::SMS_API_TOKEN);// Initializing User Api Key and Api Token
+		$newsletters->setSenderID(APIKeys::SMS_SENDER_ID);// Initializing Sender ID
+		$newsletters->msgType = 'sms';
+		$newsletters->file = '';            //Set to default
+		$newsletters->language = '';        //Set to default
+		$newsletters->scheduledate = '';    //Set to default
+		$newsletters->duration = '';        //Set to default
+
+		if ($newsletters->SendMessage($Mobile, $TEXT, FALSE))
+			return true;
+		else
+			return false;
+	}
 
 	public function send_sms($Mobile, $TEXT)
 	{
@@ -43,7 +60,7 @@ class Messagesender
 	}
 
 
-    public function send_otp_old($number, $msg)
+    public function send_otp($number, $msg)
     {
 
         $user = "94714102030";
