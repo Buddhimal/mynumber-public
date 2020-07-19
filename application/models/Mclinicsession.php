@@ -124,17 +124,42 @@ class Mclinicsession extends CI_Model
 		$output = null;
 		$current_datetime = DateHelper::utc_datetime();
 		$current_time = DateHelper::utc_time();
+		$current_date = DateHelper::utc_date();
 
 		$all_sessions = $this->db
-			->select("s.*,d.day,d.starting_time,d.end_time")
-			->from('clinic_session as s')
-			->join('clinic_session_days as d', 'd.session_id=s.id')
-			->where(sprintf("s.clinic_id='%s' and s.is_deleted=0 and s.is_active=1 and d.is_deleted=0 and d.is_active=1", $clinic_id))
-			->where('d.day', $day)
-			->where('d.starting_time >', $current_time)
-			->where('d.off', false)
-			->order_by("ABS('$current_datetime' - UNIX_TIMESTAMP(d.starting_time))")
-			->get();
+//			->select("s.*,d.day,d.starting_time,d.end_time")
+//			->from('clinic_session as s')
+//			->join('clinic_session_days as d', 'd.session_id=s.id')
+//			->where(sprintf("s.clinic_id='%s' and s.is_deleted=0 and s.is_active=1 and d.is_deleted=0 and d.is_active=1", $clinic_id))
+//			->where('d.day', $day)
+//			->where('d.starting_time >', $current_time)
+//			->where('d.off', false)
+//			->where_not_in("$current_date",'select DATE(holiday) holiday from clinic_holidays where clinic_id=$clinic_id and is_active=1 and is_deleted=0')
+//			->order_by("ABS('$current_datetime' - UNIX_TIMESTAMP(d.starting_time))")
+//			->get();
+			->query("SELECT
+								`s`.*,
+								`d`.`day`,
+								`d`.`starting_time`,
+								`d`.`end_time` 
+							FROM
+								`clinic_session` AS `s`
+								JOIN `clinic_session_days` AS `d` ON `d`.`session_id` = `s`.`id` 
+							WHERE
+								`s`.`clinic_id` = '$clinic_id' 
+								AND `s`.`is_deleted` = 0 
+								AND `s`.`is_active` = 1 
+								AND `d`.`is_deleted` = 0 
+								AND `d`.`is_active` = 1 
+								AND `d`.`day` = '1' 
+								AND `d`.`starting_time` > '$current_time' 
+								AND `d`.`off` = 0 
+								AND '$current_date' NOT IN ( SELECT DATE( holiday ) holiday FROM clinic_holidays WHERE clinic_id = '$clinic_id' AND `is_active` = 1 AND `is_deleted` = 0 ) 
+							ORDER BY
+								ABS(
+								'$current_datetime' - UNIX_TIMESTAMP( d.starting_time ))");
+
+//		DatabaseFunction::last_query();
 
 		foreach ($all_sessions->result() as $session_data) {
 
