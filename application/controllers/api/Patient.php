@@ -970,6 +970,7 @@ class Patient extends REST_Controller
                     $response->error_msg = NULL;
                     $response->response['session_id']=$session_id;
                     $response->response['on_going_number']=$get_ongoing_number;
+                    $response->response['session_status']=$this->mclinicsessiontrans->get_last_states_of_session($session_id, DateHelper::slk_date());
                     $this->response($response, REST_Controller::HTTP_OK);
 
                 } else {
