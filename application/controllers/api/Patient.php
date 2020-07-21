@@ -309,13 +309,7 @@ class Patient extends REST_Controller
 
     public function PublicByUniqueId_get($public_id)
     {
-
-		var_dump(DateHelper::utc_datetime());
-		var_dump(DateHelper::utc_date());
-		var_dump(DateHelper::utc_day());
-		die();
-
-		$method = $_SERVER['REQUEST_METHOD'];
+        $method = $_SERVER['REQUEST_METHOD'];
         $response = new stdClass();
         if ($method == 'GET') {
 
