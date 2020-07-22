@@ -259,7 +259,7 @@ class Mclinicappointment extends CI_Model
 											a.appointment_date,
 											sn.serial_number,
 											concat(d.salutation,' ',d.first_name,' ',d.last_name) as doctor_name,
-											concat(c.clinic_name,' Clinic') as clinic_name,
+											c.clinic_name as clinic_name,
 											concat(l.street_address,', ',l.city) as clinic_address,
 											l.lat,
 											l.long,
