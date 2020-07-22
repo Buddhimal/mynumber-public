@@ -151,7 +151,7 @@ class Mclinicsession extends CI_Model
 								AND `s`.`is_active` = 1 
 								AND `d`.`is_deleted` = 0 
 								AND `d`.`is_active` = 1 
-								AND `d`.`day` = '1' 
+								AND `d`.`day` = $day 
 								AND `d`.`starting_time` > '$current_time' 
 								AND `d`.`off` = 0 
 								AND '$current_date' NOT IN ( SELECT DATE( holiday ) holiday FROM clinic_holidays WHERE clinic_id = '$clinic_id' AND `is_active` = 1 AND `is_deleted` = 0 ) 
