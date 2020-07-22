@@ -19,11 +19,11 @@ class Mpublic extends CI_Model
 		if (isset($post_array['salutation']))
 			$this->post['salutation'] = $post_array['salutation'];
 		if (isset($post_array['firstname']))
-			$this->post['first_name'] = $post_array['firstname'];
+			$this->post['first_name'] = ucfirst($post_array['firstname']);
 		if (isset($post_array['lastname']))
-			$this->post['last_name'] = $post_array['lastname'];
+			$this->post['last_name'] = ucfirst($post_array['lastname']);
 		if (isset($post_array['address']))
-			$this->post['address'] = $post_array['address'];
+			$this->post['address'] = ucfirst($post_array['address']);
 		if (isset($post_array['nic']))
 			$this->post['nic'] = $post_array['nic'];
 		if (isset($post_array['dob']))
