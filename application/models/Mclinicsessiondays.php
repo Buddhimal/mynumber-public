@@ -36,7 +36,7 @@ class Mclinicsessiondays extends CI_Model
     }
 
     public function get_today_session($session_id,$day){
-        $this->db->select('id,day,starting_time,end_time,off');
+        $this->db->select('id,id as topic,day,starting_time,end_time,off');
         $this->db->from($this->table);
         $this->db->where('session_id', $session_id);
         $this->db->where('day', $day);
