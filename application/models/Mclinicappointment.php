@@ -306,6 +306,7 @@ class Mclinicappointment extends CI_Model
 
 		$res = $this->db->query("SELECT
 											a.patient_id,
+											sd.id as topic,
 											a.session_id,
 											a.id as appointment_id,
 											a.appointment_status,
