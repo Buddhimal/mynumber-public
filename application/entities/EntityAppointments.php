@@ -4,6 +4,7 @@ class EntityAppointments
 {
     public $patient_id = null;
     public $session_id = null;
+    public $topic = null;
     public $appointment_id = null;
     public $appointment_status = null;
     public $appointment_date = null;
@@ -20,6 +21,7 @@ class EntityAppointments
     {
         if (!is_null($data)) {
             $this->patient_id = $data->patient_id;
+            $this->topic = $data->topic;
             $this->session_id = $data->session_id;
             $this->appointment_id = $data->appointment_id;
             $this->appointment_status = $data->appointment_status;
