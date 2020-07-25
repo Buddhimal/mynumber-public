@@ -37,9 +37,9 @@ class Appointmentserialnumber extends CI_Model
 
 		$number_id = trim($this->mmodel->getGUID(), '{}');
 
-		$this->db->trans_start();
+		$this->db->trans_begin();
 
-        $number = $this->get_appointment_number($patient_id, $session_id);
+		$number = $this->get_appointment_number($patient_id, $session_id);
 
 		if (is_null($number)) {
 
@@ -65,11 +65,16 @@ class Appointmentserialnumber extends CI_Model
 			}
 
 		} else {
-			return $number;
+			$result = $number;
 		}
 
-		$this->db->trans_complete();
-		return $result;
+		if ($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			return null;
+		} else {
+			$this->db->trans_commit();
+			return $result;
+		}
 	}
 
 	public function get_appointment_number($patient_id = '', $session_id = '')
@@ -93,7 +98,7 @@ class Appointmentserialnumber extends CI_Model
 
 	public function get_next_available_number($patient_id = '', $session_id = '')
 	{
-        $slk_date = DateHelper::slk_date();
+		$slk_date = DateHelper::slk_date();
 
 		$res = $this->db
 			->query("SELECT 
@@ -152,7 +157,7 @@ class Appointmentserialnumber extends CI_Model
 	}
 
 
-	public function valid_serial_number($session_id,$serial_number_id)
+	public function valid_serial_number($session_id, $serial_number_id)
 	{
 
 	}
