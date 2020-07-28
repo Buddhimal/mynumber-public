@@ -9,6 +9,7 @@ class Messagesender
 	{
 		$api_key = APIKeys::DIALOG_API_KEY;
 		$sender_id = APIKeys::SMS_SENDER_ID;
+		$msg = urlencode($msg);
 
 		$baseurl = "https://cpsolutions.dialog.lk/index.php/cbs/sms/send";
 		$url = "$baseurl/?destination=$number&q=$api_key&message=$msg&from=$sender_id";
