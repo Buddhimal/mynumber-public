@@ -161,6 +161,61 @@ class Patient extends REST_Controller
         }
     }
 
+    public function GetAppVersion_put($public_id,$app_name)
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $response = new stdClass();
+
+        if ($method == 'PUT') {
+
+            $check_auth_client = $this->mmodel->check_auth_client();
+
+            if ($check_auth_client == true) {
+
+                $app_info = $this->mappversion->get_app_version($app_name);
+
+				$firebase_id = $this->put('firebase_id');
+
+				$this->mpublic->update_firebase_id($public_id, $firebase_id);
+
+                if (!is_null($app_info)) {
+
+                    $response->status = REST_Controller::HTTP_OK;
+                    $response->status_code = APIResponseCode::SUCCESS;
+                    $response->msg = 'App Details';
+                    $response->response = $app_info;
+                    $response->error_msg = null;
+                    $this->response($response, REST_Controller::HTTP_OK);
+
+                } else {
+                    $response->status = REST_Controller::HTTP_BAD_REQUEST;
+                    $response->status_code = APIResponseCode::BAD_REQUEST;
+                    $response->msg = 'Invalid App Name';
+                    $response->response = NULL;
+                    $response->error_msg = null;
+                    $this->response($response, REST_Controller::HTTP_OK);
+                }
+
+            } else {
+                $response->status = REST_Controller::HTTP_UNAUTHORIZED;
+                $response->status_code = APIResponseCode::UNAUTHORIZED;
+                $response->msg = 'Unauthorized';
+                $response->response = NULL;
+                $response->error_msg = 'Invalid Authentication Key.';
+                $this->response($response, REST_Controller::HTTP_OK);
+            }
+
+        } else {
+            $response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+            $response->status_code = APIResponseCode::METHOD_NOT_ALLOWED;
+            $response->msg = 'Method Not Allowed';
+            $response->response = NULL;
+            $response->error_msg = 'Invalid Request Method.';
+            $this->response($response, REST_Controller::HTTP_METHOD_NOT_ALLOWED);
+        }
+    }
+
+
     public function GetAppVersion_get($app_name)
     {
 

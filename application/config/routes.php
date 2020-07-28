@@ -52,6 +52,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $route['default_controller'] = 'index';
 
 $route['api/app/version/(:any)']['GET'] = 'api/patient/GetAppVersion/$1';
+$route['api/public/(:any)/app/version/(:any)']['PUT'] = 'api/patient/GetAppVersion/$1/$2';
 
 //region Login & OTP Routes
 $route['api/public/auth/checkin']['POST'] = 'api/auth/checkin';

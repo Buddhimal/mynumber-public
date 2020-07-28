@@ -85,7 +85,6 @@ class Mpublic extends CI_Model
 	}
 
 
-
 	public function create()
 	{
 		$result = null;
@@ -101,7 +100,7 @@ class Mpublic extends CI_Model
 
 		$this->mmodel->insert($this->table, $this->post);
 
-		if ($this->db->affected_rows()>0) {
+		if ($this->db->affected_rows() > 0) {
 			$result = $this->get($public_id);
 		}
 
@@ -156,6 +155,16 @@ class Mpublic extends CI_Model
 		}
 
 		return $result;
+	}
+
+	public function update_firebase_id($public_id,$firebase_id)
+	{
+		$this->db
+			->set('firebase_id', $firebase_id)
+			->set('updated', date("Y-m-d H:i:s"))
+			->where('id', $public_id)
+			->update($this->table);
+		return true;
 	}
 
 	private function get_record($id)
