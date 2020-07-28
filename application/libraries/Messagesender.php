@@ -21,13 +21,6 @@ class Messagesender
 		} else {
 			return false;
 		}
-
-
-		if ($res == 0) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 
