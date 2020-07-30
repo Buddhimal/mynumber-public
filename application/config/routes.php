@@ -53,6 +53,7 @@ $route['default_controller'] = 'index';
 
 $route['api/app/version/(:any)']['GET'] = 'api/patient/GetAppVersion/$1';
 $route['api/public/(:any)/app/version/(:any)']['PUT'] = 'api/patient/GetAppVersion/$1/$2';
+$route['api/public/(:any)/complaint']['POST'] = 'api/patient/MakeComplaint/$1';
 
 //region Login & OTP Routes
 $route['api/public/auth/checkin']['POST'] = 'api/auth/checkin';
