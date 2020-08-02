@@ -195,28 +195,30 @@ class Mclinicappointment extends CI_Model
 		$appointment = null;
 		$due_amount = 0;
 
-		$res = $this->db
-			->select('a.appointment_date,a.appointment_charge')
-			->from('clinic_appointments as a')
-			->join('clinic_session as s', 's.id=a.session_id')
-			->where('a.patient_id', $patient_id)
-			->where('a.appointment_status', AppointmentStatus::PENDING)
-			->where('a.is_active', 1)
-			->where('s.is_active', 1)
-			->where('a.is_deleted', 0)
-			->where('s.is_deleted', 0)
-			->get();
-
-		foreach ($res->result() as $due) {
-			$payment_dues[] = $due;
-			$due_amount += $due->appointment_charge;
-		}
-
 		$public = $this->mpublic->get($patient_id);
 
-		if ($public->is_clinic)
+		if (!$public->is_clinic)
+		{
+			$res = $this->db
+				->select('a.appointment_date,a.appointment_charge')
+				->from('clinic_appointments as a')
+				->join('clinic_session as s', 's.id=a.session_id')
+				->where('a.patient_id', $patient_id)
+				->where('a.appointment_status', AppointmentStatus::PENDING)
+				->where('a.is_active', 1)
+				->where('s.is_active', 1)
+				->where('a.is_deleted', 0)
+				->where('s.is_deleted', 0)
+				->get();
+			foreach ($res->result() as $due) {
+				$payment_dues[] = $due;
+				$due_amount += $due->appointment_charge;
+			}
+			$patient['default_charge'] = Payments::DEFAULT_CHARGE;
+		} else {
 			$patient['default_charge'] = 0;
-		$patient['default_charge'] = Payments::DEFAULT_CHARGE;
+		}
+
 		$patient['due_amount'] = $due_amount;
 		$patient['due_dates'] = $payment_dues;
 		$patient['last_appointment'] = $this->get_last_appointment_date($patient_id);
