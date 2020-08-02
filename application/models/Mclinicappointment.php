@@ -66,7 +66,7 @@ class Mclinicappointment extends CI_Model
 	public function create($patient_id, $session_id, $appointment_serial_number_id)
 	{
 
-		$patient = $this->mpublic->get_record($patient_id);
+		$patient = $this->mpublic->get($patient_id);
 
 		$this->db->trans_start();
 
@@ -84,7 +84,7 @@ class Mclinicappointment extends CI_Model
 			$this->post['patient_id'] = $patient_id;
 			$this->post['is_canceled'] = 0;
 			$this->post['appointment_status'] = AppointmentStatus::PENDING;
-			if ($patient["is_clinic"])
+			if ($patient->is_clinic)
 				$this->post['appointment_charge'] = 0;
 			$this->post['appointment_charge'] = Payments::DEFAULT_CHARGE;
 			$this->post['appointment_status_updated'] = date("Y-m-d H:i:s");
