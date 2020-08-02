@@ -212,7 +212,10 @@ class Mclinicappointment extends CI_Model
 			$due_amount += $due->appointment_charge;
 		}
 
-//		$patient['id'] = $patient_id;
+		$public = $this->mpublic->get($patient_id);
+
+		if ($public->is_clinic)
+			$patient['default_charge'] = 0;
 		$patient['default_charge'] = Payments::DEFAULT_CHARGE;
 		$patient['due_amount'] = $due_amount;
 		$patient['due_dates'] = $payment_dues;
