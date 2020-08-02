@@ -1,6 +1,8 @@
 <?php
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+require_once(APPPATH . 'entities/EntityPublic.php');
+
 class Mpublic extends CI_Model
 {
 	public $validation_errors = array();
@@ -178,10 +180,7 @@ class Mpublic extends CI_Model
 	public function get($id)
 	{
 		$query_result = $this->get_record($id);
-		$CI = &get_instance();
-		$CI->load->entity('EntityPublic', $query_result, 'public_response');
-
-		return $CI->public_response;
+		return new EntityPublic($query_result);
 	}
 
 
