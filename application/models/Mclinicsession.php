@@ -186,20 +186,23 @@ class Mclinicsession extends CI_Model
 
 	public function get_session_count_for_today($clinic = '')
 	{
+		$day = DateHelper::utc_day();
+
 		$sessions=$this->db->query("SELECT
 									count(s.id) as sessions
 								FROM
 									clinic_session AS s
 									INNER JOIN	clinic_session_days AS sd ON s.id = sd.session_id
 								WHERE
-									sd.day = 7
+									sd.day = $day
 									AND sd.off = 0
 									AND s.clinic_id = '$clinic'
-									AND sd.end_time>TIME(CONVERT_TZ(UTC_TIMESTAMP(), 'UTC', 'Asia/Kolkata'))
+									AND sd.starting_time>TIME(CONVERT_TZ(UTC_TIMESTAMP(), 'UTC', 'Asia/Kolkata'))
 									AND s.is_active=1
 									AND s.is_deleted=0
 									AND sd.is_active=1
 									AND sd.is_deleted=0");
+
 		if($sessions->num_rows())
 			return $sessions->row()->sessions;
 
