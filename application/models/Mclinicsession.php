@@ -172,6 +172,9 @@ class Mclinicsession extends CI_Model
 			if ($current_session_status == SessionStatus::PENDING && (DateHelper::is_time_diff(DateHelper::utc_time(), $session_data->starting_time))){
 				$sessions->days->session_status = SessionStatus::TIME_PASSED;
 			}
+			elseif ($current_session_status==SessionStatus::CANCELED){
+				$sessions->days->session_status = SessionStatus::CANCELED;
+			}
 			else{
 				$sessions->days->session_status = $current_session_status;
 				$sessions->consultant = $this->mdoctor->get($sessions->consultant);
@@ -179,6 +182,28 @@ class Mclinicsession extends CI_Model
 			}
 		}
 		return $output;
+	}
+
+	public function get_session_count_for_today($clinic = '')
+	{
+		$sessions=$this->db->query("SELECT
+									count(s.id) as sessions
+								FROM
+									clinic_session AS s
+									INNER JOIN	clinic_session_days AS sd ON s.id = sd.session_id
+								WHERE
+									sd.day = 7
+									AND sd.off = 0
+									AND s.clinic_id = '$clinic'
+									AND sd.end_time>TIME(CONVERT_TZ(UTC_TIMESTAMP(), 'UTC', 'Asia/Kolkata'))
+									AND s.is_active=1
+									AND s.is_deleted=0
+									AND sd.is_active=1
+									AND sd.is_deleted=0");
+		if($sessions->num_rows())
+			return $sessions->row()->sessions;
+
+		return 0;
 	}
 //
 //    public function get_sessions_for_clinic($clinic_id = '')
