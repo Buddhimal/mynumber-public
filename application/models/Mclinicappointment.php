@@ -66,10 +66,7 @@ class Mclinicappointment extends CI_Model
 	public function create($patient_id, $session_id, $appointment_serial_number_id)
 	{
 
-//		$appointment = $this->get_appointment_full_detail('DBA4F807-B99B-4EAA-8840-B525F2335FCF');
-//		$data=((array)$appointment);
-//		$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::NewAppointmentSMS((array)$appointment));
-//		die();
+		$patient = $this->mpublic->get_record($patient_id);
 
 		$this->db->trans_start();
 
@@ -85,8 +82,10 @@ class Mclinicappointment extends CI_Model
 			$this->post['appointment_date'] = DateHelper::slk_date();
 //		$this->post['serial_number_id'] = $serial_number_id;
 			$this->post['patient_id'] = $patient_id;
-			 $this->post['is_canceled'] = 0;
+			$this->post['is_canceled'] = 0;
 			$this->post['appointment_status'] = AppointmentStatus::PENDING;
+			if ($patient->is_clinic)
+				$this->post['appointment_charge'] = 0;
 			$this->post['appointment_charge'] = Payments::DEFAULT_CHARGE;
 			$this->post['appointment_status_updated'] = date("Y-m-d H:i:s");
 			$this->post['is_deleted'] = 0;
@@ -106,11 +105,11 @@ class Mclinicappointment extends CI_Model
 				$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::NewAppointmentSMS((array)$appointment));
 
 				//create email record
-				$email_data['sender_name']=EmailSender::mynumber_info;
-				$email_data['send_to']=$this->mpublic->get($patient_id)->email;
+				$email_data['sender_name'] = EmailSender::mynumber_info;
+				$email_data['send_to'] = $this->mpublic->get($patient_id)->email;
 				$email_data['template_id'] = EmailTemplate::public_new_appointment;
-				$email_data['content']=NULL;
-				$email_data['email_type_id']=EmailType::appointment_email;
+				$email_data['content'] = NULL;
+				$email_data['email_type_id'] = EmailType::appointment_email;
 
 				$this->memail->set_data($email_data);
 				$this->memail->create();
@@ -222,12 +221,12 @@ class Mclinicappointment extends CI_Model
 		return $patient;
 	}
 
-	public function get_ongoing_number($session_id='')
+	public function get_ongoing_number($session_id = '')
 	{
 		$res = $this->db
 			->select('sn.serial_number')
-			->from($this->table.' as ca')
-			->join('serial_number as sn','sn.id=ca.serial_number_id')
+			->from($this->table . ' as ca')
+			->join('serial_number as sn', 'sn.id=ca.serial_number_id')
 			->where('ca.session_id', $session_id)
 			->where('ca.appointment_date', DateHelper::slk_date())
 			->where('ca.appointment_status', AppointmentStatus::PENDING)
@@ -235,11 +234,11 @@ class Mclinicappointment extends CI_Model
 			->where('ca.is_deleted', 0)
 			->where('sn.is_active', 1)
 			->where('sn.is_deleted', 0)
-			->order_by('sn.serial_number','ASC')
+			->order_by('sn.serial_number', 'ASC')
 			->limit(1)
 			->get();
 
-		if($res->num_rows()>0)
+		if ($res->num_rows() > 0)
 			return $res->row()->serial_number;
 
 		return null;
@@ -292,14 +291,14 @@ class Mclinicappointment extends CI_Model
 											AND l.is_deleted = 0 
 											AND l.is_active = 1");
 
-		foreach ($res->result() as $appointment){
+		foreach ($res->result() as $appointment) {
 			$appointments[] = new EntityAppointments($appointment);
 		}
 
 		return $appointments;
 	}
 
-	public function get_appointments_monthly($patient_id = '',$month='')
+	public function get_appointments_monthly($patient_id = '', $month = '')
 	{
 		$slk_date = DateHelper::slk_date();
 		$appointments = null;
@@ -345,7 +344,7 @@ class Mclinicappointment extends CI_Model
 											AND l.is_deleted = 0 
 											AND l.is_active = 1");
 
-		foreach ($res->result() as $appointment){
+		foreach ($res->result() as $appointment) {
 			$appointments[] = new EntityAppointments($appointment);
 		}
 
@@ -356,7 +355,7 @@ class Mclinicappointment extends CI_Model
 	{
 		$day = DateHelper::utc_day();
 
-		$res=$this->db
+		$res = $this->db
 			->query("SELECT
                             ca.id,
                             ca.id as appointment_id,
