@@ -29,6 +29,8 @@ class Mcomplaints extends CI_Model
             $this->post['complaint_type'] = $post_array['complaint_type'];
         if (isset($post_array['complaint']))
             $this->post['complaint'] = $post_array['complaint'];
+        if (isset($post_array['android_version']))
+            $this->post['android_version'] = $post_array['android_version'];
     }
 
     public function is_valid()
