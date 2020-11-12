@@ -58,7 +58,7 @@ class APIKeys{
 }
 
 class Payments{
-    const DEFAULT_CHARGE=30.00;
+    const DEFAULT_CHARGE=50.00;
 }
 
 class PaymentCollectionStatus{
