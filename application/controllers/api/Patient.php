@@ -384,7 +384,7 @@ class Patient extends REST_Controller
 
 			} else {
 				$response->status = REST_Controller::HTTP_UNAUTHORIZED;
-				$response->status_code = APIResponseCode::HTTP_UNAUTHORIZED;
+				$response->status_code = APIResponseCode::UNAUTHORIZED;
 				$response->msg = 'Unauthorized';
 				$response->response = NULL;
 				$response->error_msg = 'Invalid Authentication Key.';
@@ -445,7 +445,7 @@ class Patient extends REST_Controller
 				}
 			} else {
 				$response->status = REST_Controller::HTTP_UNAUTHORIZED;
-				$response->status_code = APIResponseCode::HTTP_UNAUTHORIZED;
+				$response->status_code = APIResponseCode::UNAUTHORIZED;
 				$response->msg = 'Unauthorized';
 				$response->response = NULL;
 				$response->error_msg = 'Invalid Authentication Key.';
