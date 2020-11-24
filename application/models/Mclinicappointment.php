@@ -84,9 +84,15 @@ class Mclinicappointment extends CI_Model
 			$this->post['patient_id'] = $patient_id;
 			$this->post['is_canceled'] = 0;
 			$this->post['appointment_status'] = AppointmentStatus::PENDING;
-			if ($patient->is_clinic)
+			if ($patient->is_clinic) {
 				$this->post['appointment_charge'] = 0;
-			$this->post['appointment_charge'] = Payments::DEFAULT_CHARGE;
+				$this->post['doctors_pay'] = 0;
+				$this->post['net_pay'] = 0;
+			} else {
+				$this->post['appointment_charge'] = Payments::DEFAULT_CHARGE;
+				$this->post['doctors_pay'] = Payments::DOCTORS_PAY;
+				$this->post['net_pay'] = Payments::DEFAULT_CHARGE - Payments::DOCTORS_PAY;
+			}
 			$this->post['appointment_status_updated'] = date("Y-m-d H:i:s");
 			$this->post['is_deleted'] = 0;
 			$this->post['is_active'] = 1;
@@ -197,8 +203,7 @@ class Mclinicappointment extends CI_Model
 
 		$public = $this->mpublic->get($patient_id);
 
-		if (!$public->is_clinic)
-		{
+		if (!$public->is_clinic) {
 			$res = $this->db
 				->select('a.appointment_date,a.appointment_charge')
 				->from('clinic_appointments as a')
@@ -367,12 +372,13 @@ class Mclinicappointment extends CI_Model
                             ca.patient_name,
                             ca.patient_address,
                             ca.patient_phone,
-                            CONCAT(  d.first_name, ' ', d.last_name ) AS doctor_name,
+                            CONCAT(  d.first_name ) AS doctor_name,
                             c.clinic_name,
                             l.city AS clinic_city,
                             ca.appointment_date,
                             sn.serial_number,
-                            sd.starting_time 
+                            sd.starting_time,
+                            s.avg_time_per_patient                            
                         FROM
                             clinic_appointments AS ca
                             INNER JOIN clinic_session AS s ON ca.session_id = s.id
@@ -400,6 +406,13 @@ class Mclinicappointment extends CI_Model
                         ");
 
 		return $res->row();
+	}
+
+	public function send_test_msg(){
+		$appointment = $this->get_appointment_full_detail("85773742-0E44-4279-4735-7B7D69336894");
+
+		$this->messagesender->send_sms('0770427277', SMSTemplate::NewAppointmentSMS((array)$appointment));
+
 	}
 
 }

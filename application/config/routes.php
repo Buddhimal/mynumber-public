@@ -55,6 +55,10 @@ $route['api/app/version/(:any)']['GET'] = 'api/patient/GetAppVersion/$1';
 $route['api/public/(:any)/app/version/(:any)']['PUT'] = 'api/patient/GetAppVersion/$1/$2';
 $route['api/public/(:any)/complaint']['POST'] = 'api/patient/MakeComplaint/$1';
 
+//region Test Routes
+//$route['api/public/test_api']['POST'] = 'api/patient/testAPI';
+//endregion
+
 //region Login & OTP Routes
 $route['api/public/auth/checkin']['POST'] = 'api/auth/checkin';
 $route['api/public/(:any)/otp/validate']['PUT'] = 'api/patient/ValidateOTP/$1';
@@ -87,4 +91,6 @@ $route['api/public/(:any)/session/(:any)/appointment']['POST'] = 'api/patient/Bo
 // errors
 $route['404_override'] = 'errors/index';
 $route['translate_uri_dashes'] = FALSE;
-// 
+//
+
+

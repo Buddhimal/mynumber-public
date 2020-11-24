@@ -59,6 +59,11 @@ class APIKeys{
 
 class Payments{
     const DEFAULT_CHARGE=50.00;
+	const DOCTORS_PAY = 30.00;
+
+	public static function get_percentage(){
+		return (self::DOCTORS_PAY/self::DEFAULT_CHARGE)*100;
+	}
 }
 
 class PaymentCollectionStatus{

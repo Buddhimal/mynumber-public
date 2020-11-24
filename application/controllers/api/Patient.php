@@ -1055,6 +1055,11 @@ class Patient extends REST_Controller
 		}
 	}
 
+	public function testAPI_post(){
+
+		$this->mclinicappointment->send_test_msg();
+	}
+
 	//endregion
 
 
