@@ -88,6 +88,10 @@ $route['api/public/(:any)/session/(:any)/number']['GET'] = 'api/patient/GetAppoi
 $route['api/public/(:any)/session/(:any)/appointment']['POST'] = 'api/patient/BookAppointment/$1/$2';
 //endregion
 
+//region Website Routes
+$route['api/public/inquiry']['POST'] = 'api/patient/NewInquiry';
+//endregion
+
 // errors
 $route['404_override'] = 'errors/index';
 $route['translate_uri_dashes'] = FALSE;

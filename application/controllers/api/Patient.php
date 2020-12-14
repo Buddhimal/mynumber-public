@@ -30,6 +30,7 @@ class Patient extends REST_Controller
 		$this->load->model('mclinicsessiontrans');
 		$this->load->model('mappversion');
 		$this->load->model('mcomplaints');
+		$this->load->model('minquiry');
 		$this->load->model('mcommunicatoremailqueue', 'memail');
 	}
 
@@ -1055,7 +1056,8 @@ class Patient extends REST_Controller
 		}
 	}
 
-	public function testAPI_post(){
+	public function testAPI_post()
+	{
 
 		$this->mclinicappointment->send_test_msg();
 	}
@@ -1573,5 +1575,53 @@ class Patient extends REST_Controller
 			$this->response($response, REST_Controller::HTTP_OK);
 		}
 	}
+
+
+	//region All API For Clinic
+
+	public function NewInquiry_post()
+	{
+		$method = $_SERVER['REQUEST_METHOD'];
+		$response = new stdClass();
+		if ($method == 'POST') {
+
+				$json_data = $this->post('json_data');
+
+				// Passing post array to the model.
+				$this->minquiry->set_data($json_data);
+
+				// create the doctor record as the given data is valid
+				$complaint = $this->minquiry->create();
+
+				if (!is_null($complaint)) {
+
+					$response->status = REST_Controller::HTTP_OK;
+					$response->status_code = APIResponseCode::SUCCESS;
+					$response->msg = 'Inquiry Sent Successfully';
+					$response->error_msg = NULL;
+					$response->response = $complaint;
+					$this->response($response, REST_Controller::HTTP_OK);
+
+				} else {
+					$response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
+					$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
+					$response->msg = NULL;
+					$response->error_msg[] = 'Internal Server Error';
+					$response->response = NULL;
+					$this->response($response, REST_Controller::HTTP_OK);
+				}
+
+
+		} else {
+			$response->status = REST_Controller::HTTP_METHOD_NOT_ALLOWED;
+			$response->msg = 'Method Not Allowed';
+			$response->response = NULL;
+			$response->error_msg = 'Invalid Request Method.';
+			$this->response($response, REST_Controller::HTTP_OK);
+		}
+	}
+
+	//endregion
+
 
 }
