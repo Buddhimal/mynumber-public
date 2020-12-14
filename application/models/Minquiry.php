@@ -2,7 +2,7 @@
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 
-class MInquiry extends CI_Model
+class Minquiry extends CI_Model
 {
 	public $validation_errors = array();
 	private $post = array();
