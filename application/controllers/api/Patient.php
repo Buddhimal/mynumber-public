@@ -929,7 +929,7 @@ class Patient extends REST_Controller
 					$response->msg = 'Appointments Today';
 					$response->error_msg = NULL;
 					$response->response['appointments'] = $appointments;
-					$response->response['image'] = 'http://public.mynumber.lk/images/advert-doctor-ratio.png';
+					$response->response['image'] = 'https://public.mynumber.lk/images/advert-doctor-ratio.png';
 					$this->response($response, REST_Controller::HTTP_OK);
 
 				} else {
