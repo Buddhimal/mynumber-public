@@ -1,6 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+class AppPackage{
+	const PACKAGE_NAME = 'com.mynumber.patient';
+}
+
+
 class EntityType
 {
 	const Patient = 0;

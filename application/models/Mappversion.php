@@ -39,5 +39,22 @@ class Mappversion extends CI_Model
 
     }
 
+    public function get_image_name(){
+
+		$url = '';
+
+    	$res = $this->db
+			->select('image_name')
+			->from($this->table)
+			->where('app_name',AppPackage::PACKAGE_NAME)
+			->get();
+
+    	if ($res->num_rows()>0){
+    		$url = $res->row()->image_name;
+		}
+
+		return $url;
+	}
+
 
 }
