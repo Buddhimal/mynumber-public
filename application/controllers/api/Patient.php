@@ -959,7 +959,7 @@ class Patient extends REST_Controller
 		}
 	}
 
-	public function GetAppointmentsHistory_get($patient_id = '', $month = '')
+	public function GetAppointmentsHistory_get($patient_id, $year, $month)
 	{
 		$method = $_SERVER['REQUEST_METHOD'];
 		$response = new stdClass();
@@ -971,7 +971,7 @@ class Patient extends REST_Controller
 
 				if ($this->mpublic->valid_public($patient_id)) {
 
-					$appointments = $this->mclinicappointment->get_appointments_monthly($patient_id, $month);
+					$appointments = $this->mclinicappointment->get_appointments_monthly($patient_id, $year, $month);
 
 					$response->status = REST_Controller::HTTP_OK;
 					$response->status_code = APIResponseCode::SUCCESS;

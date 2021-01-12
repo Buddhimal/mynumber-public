@@ -308,7 +308,7 @@ class Mclinicappointment extends CI_Model
 		return $appointments;
 	}
 
-	public function get_appointments_monthly($patient_id = '', $month = '')
+	public function get_appointments_monthly($patient_id, $year, $month)
 	{
 		$slk_date = DateHelper::slk_date();
 		$appointments = null;
@@ -339,6 +339,7 @@ class Mclinicappointment extends CI_Model
 										WHERE 
 											a.patient_id = '$patient_id'
 											AND MONTH(a.appointment_date) = $month
+											AND YEAR(a.appointment_date) = $year
 											AND a.is_deleted = 0 
 											AND a.is_active = 1
 											AND sn.is_deleted = 0 
