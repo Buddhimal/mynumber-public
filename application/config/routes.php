@@ -76,6 +76,14 @@ $route['api/public/(:any)']['PUT'] = 'api/patient/UpdatePublic/$1';
 $route['api/public/(:any)/payment/due']['GET'] = 'api/patient/GetPaymentDues/$1';
 $route['api/public/(:any)/appointments/today']['GET'] = 'api/patient/GetAppointmentsToday/$1';
 $route['api/public/(:any)/appointments/monthly/(:any)/(:any)']['GET'] = 'api/patient/GetAppointmentsHistory/$1/$2/$3';
+
+
+
+$route['api/public/(:any)/addtobill/(:any)/verify']['PUT'] = 'api/patient/MobilePayComplete/$1/$2';
+$route['api/public/(:any)/addtobill']['POST'] = 'api/patient/PaymentInit/$1';
+$route['api/public/(:any)/ipg/(:any)/finish']['PUT'] = 'api/patient/PaymentComplete/$1/$2';
+
+
 //$route['api/public/(:any)/appointments/(:any)/sessions/(:any)/ongoing']['GET'] = 'api/patient/GetAppointmentsToday/$1/$2/$3';
 $route['api/search/clinic/location/(:any)/(:any)']['GET'] = 'api/patient/SearchClinicByLocation/$1/$2';
 $route['api/search/clinic/doctor/(:any)']['GET'] = 'api/patient/SearchClinicByDoctor/$1';

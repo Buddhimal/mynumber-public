@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+define('SOFTGEN_MOBITEL_ACC_NUMBER', '94706908200');
+
 class AppPackage{
 	const PACKAGE_NAME = 'com.mynumber.patient';
 }
@@ -62,26 +64,57 @@ class APIKeys{
 //	const PATIENT_API_KEY = 'simplerestapi';
 }
 
+class PayHerePaymentStatus{
+	const OK =2;
+	const PENDING =0;
+	const CANCELLED = -1;
+	const FAILED = -2;
+	const CHARGEDBACK = -3;
+}
+
+class PaymentType
+{
+	const Mobile = 1;
+	const Ipg = 2;
+}
+
+class PaymentStatus
+{
+	const Pending = 0;
+	const Success = 1;
+	const Credit = 2;
+	const Failed = 3;
+}
+
+
 class Payments{
     const DEFAULT_CHARGE=50.00;
-	const DOCTORS_PAY = 30.00;
+	// const DOCTORS_PAY = 30.00;
 
-	public static function get_percentage(){
-		return (self::DOCTORS_PAY/self::DEFAULT_CHARGE)*100;
-	}
+	// public static function get_percentage(){
+	// 	return (self::DOCTORS_PAY/self::DEFAULT_CHARGE)*100;
+	// }
 }
 
-class PaymentCollectionStatus{
-	const Pending=0;
-	const Collected = 1;
-}
+// class PaymentCollectionStatus{
+// 	const Pending=0;
+// 	const Collected = 1;
+// }
 
-class PaymentPaidStatus{
-	const Pending=0;
-	const Paid = 1;
-}
+// class PaymentPaidStatus{
+// 	const Pending=0;
+// 	const Paid = 1;
+// }
 
 class SerialNumberStatus{
     const CONFIRM = 1;
     const PENDING = 0;
 }
+
+class MobileCareer{
+	const Mobitel = 1;
+	const Dialog = 2;
+	const Hutch = 3;
+	const Airtel = 4;
+}
+

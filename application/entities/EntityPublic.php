@@ -17,6 +17,9 @@ class EntityPublic
 	public $patient_code = null;
 	public $is_clinic = null;
 	public $clinic_id = null;
+	public $device = null;
+	public $os = null;
+
 
 	function __construct($data = null)
 	{
@@ -40,6 +43,8 @@ class EntityPublic
 			$this->patient_code = $data->patient_code;
 			$this->is_clinic = $data->is_clinic;
 			$this->clinic_id = $data->clinic_id;
+			$this->device = $data->device;
+			$this->os = $data->os;
 		}
 	}
 }

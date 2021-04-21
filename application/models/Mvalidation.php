@@ -19,6 +19,10 @@ class Mvalidation extends CI_Model
         return ($length == 10);
     }
 
+    function length($value, $size){
+        return (strlen($tp) == $size);   
+    }
+
     function already_exists($table, $column, $value)
     {
         $this->db->select($column);

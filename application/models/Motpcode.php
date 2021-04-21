@@ -23,6 +23,17 @@ class Motpcode extends CI_Model
 	{
 		if (isset($post_array['otp_code']))
 			$this->post['otp_code'] = $post_array['otp_code'];
+
+		if(isset($post_array['otp_ref'])){
+			$this->post['career_reference'] = $post_array['otp_ref'];
+		}else{
+			$this->post['career_reference'] = null;
+		}
+	}
+
+
+	public function is_career_verification_needed(){
+		return ( isset($this->post['career_reference']) && !empty($this->post['career_reference']));
 	}
 
 	public function is_valid($clinic_id)
@@ -41,11 +52,11 @@ class Motpcode extends CI_Model
 	}
 
 
-	public function create($clinic_id, $mobile)
+	public function create($public_id, $mobile, $reference)
 	{
 		$otp_id = trim($this->mmodel->getGUID(), '{}');
 		$this->post['id'] = $otp_id;
-		$this->post['clinic_id'] = $clinic_id;
+		$this->post['clinic_id'] = $public_id;
 		$this->post['device_mobile'] = $mobile;
 		$this->post['otp_code'] = $this->generateCode();
 		$this->post['send_at'] = date("Y-m-d H:i:s");
@@ -66,6 +77,26 @@ class Motpcode extends CI_Model
 		}
 
 		return false;
+	}
+
+	public function create_with_reference($public_id, $mobile, $reference)
+	{
+		$updated = date("Y-m-d H:i:s");
+		$otp_id = trim($this->mmodel->getGUID(), '{}');
+		$this->post['id'] = $otp_id;
+		$this->post['clinic_id'] = $public_id;
+		$this->post['device_mobile'] = $mobile;
+		$this->post['otp_code'] = null;
+		$this->post['send_at'] = $updated;
+		$this->post['expire_at'] = date('Y-m-d H:i:s', strtotime('+1 hour', strtotime( $this->post['send_at']) ) );
+		$this->post['is_confirmed'] = 0;
+		$this->post['is_deleted'] = 0;
+		$this->post['is_active'] = 1;
+		$this->post['updated'] = $updated;
+		$this->post['created'] = $updated;
+		$this->post['career_reference'] = json_encode($reference);		
+
+		return $this->mmodel->insert($this->table, $this->post);
 	}
 
 
@@ -104,16 +135,24 @@ class Motpcode extends CI_Model
 		} else {
 			return $this->messagesender->send_otp($login_details->mobile, $this->get_otp_code($public_id));
 		}
-
 	}
 
 
-	public function get_otp_code($clinic_id)
+	public function create_mobitel_otp($public_id, $mobile, $references) {
+		if($this->create_with_reference($public_id, $mobile, $reference)){
+			return $this->post;
+		}else{
+			return false;
+		}
+	}
+
+
+	public function get_otp_code($public_id)
 	{
 		$query_result = $this->db
 			->select('otp_code')
 			->from($this->table)
-			->where('clinic_id', $clinic_id)
+			->where('clinic_id', $public_id)
 			->where('expire_at >', date("Y-m-d H:i:s"))
 			->where('is_confirmed', 0)
 			->where('is_active', 1)
@@ -133,6 +172,13 @@ class Motpcode extends CI_Model
 		$this->db->select('*');
 		$this->db->from($this->table);
 		$this->db->where('id', $id);
+		return $this->db->get()->row();
+	}
+
+	public function get_record_by_reference(){
+		$this->db->select('*');
+		$this->db->from($this->table);
+		$this->db->where('career_reference', $this->post['career_reference']);
 		return $this->db->get()->row();
 	}
 

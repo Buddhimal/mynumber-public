@@ -20,24 +20,36 @@ class Mpublic extends CI_Model
 	{
 		if (isset($post_array['salutation']))
 			$this->post['salutation'] = $post_array['salutation'];
+
 		if (isset($post_array['firstname']))
 			$this->post['first_name'] = ucwords($post_array['firstname']);
+
 		if (isset($post_array['lastname']))
 			$this->post['last_name'] = ucwords($post_array['lastname']);
+
 		if (isset($post_array['address']))
 			$this->post['address'] = ucwords($post_array['address']);
+
 		if (isset($post_array['nic']))
 			$this->post['nic'] = $post_array['nic'];
+
 		if (isset($post_array['dob']))
 			$this->post['dob'] = $post_array['dob'];
+
 		if (isset($post_array['location']))
 			$this->post['location'] = $post_array['location'];
+
 		if (isset($post_array['telephone']))
 			$this->post['telephone'] = $post_array['telephone'];
+
 		if (isset($post_array['email']))
 			$this->post['email'] = $post_array['email'];
+
 		if (isset($post_array['patient_code']))
 			$this->post['patient_code'] = $post_array['patient_code'];
+
+		$this->post['device'] = (isset($post_array['device'])) ? $post_array['device'] : "Smart Phone";		
+		$this->post['os'] = (isset($post_array['os'])) ? $post_array['os'] : "Android";
 	}
 
 	public function is_valid()
@@ -68,17 +80,17 @@ class Mpublic extends CI_Model
 			array_push($this->validation_errors, 'Invalid Email.');
 			$result = false;
 		}
-//		elseif ($this->mvalidation->already_exists($this->table, 'email', $this->post['email']) == TRUE) {
-//            array_push($this->validation_errors, 'Email already registered.');
-//            $result = false;
-//        }
+		// elseif ($this->mvalidation->already_exists($this->table, 'email', $this->post['email']) == TRUE) {
+		//     array_push($this->validation_errors, 'Email already registered.');
+		//     $result = false;
+		// }
 
 		if (!(isset($this->post['telephone']) && $this->mvalidation->telephone($this->post['telephone']))) {
 			array_push($this->validation_errors, 'Invalid Telephone.');
 			$result = false;
 		}
 
-		if (!(isset($this->post['dob']) && $this->mvalidation->telephone($this->post['dob']))) {
+		if (!(isset($this->post['dob']) && $this->post['dob'] != NULL && $this->post['dob'] != '') ) {
 			array_push($this->validation_errors, 'Invalid Birthday.');
 			$result = false;
 		}
@@ -128,8 +140,8 @@ class Mpublic extends CI_Model
 		if (isset($this->post['telephone']) && $this->post['telephone'] != $current_public_data->telephone)
 			$update_data['telephone'] = $this->post['telephone'];
 
-//		if (isset($this->post['email']) && $this->post['email'] != $current_public_data->email)
-//			$update_data['email'] = $this->post['email'];
+		//		if (isset($this->post['email']) && $this->post['email'] != $current_public_data->email)
+		//			$update_data['email'] = $this->post['email'];
 
 		if (isset($this->post['location']) && $this->post['location'] != $current_public_data->location)
 			$update_data['location'] = $this->post['location'];
@@ -169,7 +181,16 @@ class Mpublic extends CI_Model
 		return true;
 	}
 
-	private function get_record($id)
+
+	public function update_mobile_mask($public_id, $mask){
+		return $this->db
+			->set('mobile_mask', $mask)
+			->set('updated', date("Y-m-d H:i:s"))
+			->where('id', $public_id)
+			->update($this->table);
+	}
+
+	public function get_record($id)
 	{
 		$this->db->select('*');
 		$this->db->from($this->table);
@@ -180,6 +201,7 @@ class Mpublic extends CI_Model
 	public function get($id)
 	{
 		$query_result = $this->get_record($id);
+		//print_r($query_result);
 		return new EntityPublic($query_result);
 	}
 

@@ -75,9 +75,12 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'sirikatha.com',
-	'username' => 'sirikath_mynum',
-	'password' => 'S^wxk!l+QZg4',
+	// 'hostname' => 'sirikatha.com',
+	'hostname' => 'localhost',
+	// 'username' => 'sirikath_mynum',
+	'username' => 'root',
+	// 'password' => 'S^wxk!l+QZg4',
+	'password' => '',
 	'database' => 'sirikath_mynumber',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

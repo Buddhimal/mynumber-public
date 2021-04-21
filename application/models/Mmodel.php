@@ -16,7 +16,8 @@ class Mmodel extends CI_Model
 
 
 	public function check_auth_client(){
-		$client_service = $this->input->get_request_header('Client-Service', TRUE);
+		
+		//$client_service = $this->input->get_request_header('Client-Service', TRUE);
 		$auth_key  = $this->input->get_request_header('Auth-Key', TRUE);
 
 //		if($client_service == $this->client_service && $auth_key == $this->auth_key){
@@ -107,6 +108,9 @@ class Mmodel extends CI_Model
 		}
 	}
 
+	function emptyGUID(){
+		return '00000000-0000-0000-0000-000000000000';
+	}
 
 	public function get_all($table) {
 		return $this->db->get($table);

@@ -16,8 +16,7 @@ class Mlocations extends CI_Model
         $this->load->model('mvalidation');
     }
 
-    private
-    function get_record($id)
+    private function get_record($id)
     {
         $this->db->select('*');
         $this->db->from($this->table);
@@ -25,15 +24,13 @@ class Mlocations extends CI_Model
         return $this->db->get()->row();
     }
 
-    public
-    function get($id)
+    public function get($id)
     {
         $query_result = $this->get_record($id);
         return  new EntityLocation($query_result);
     }
 
-    public
-    function test_location()
+    public function test_location()
     {
         $res = $this->db->query("select * from locations where id='1F25722A-64A4-4C1D-A23D-7418CF7F9269' ");
 
