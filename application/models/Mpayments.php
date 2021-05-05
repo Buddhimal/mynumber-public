@@ -91,4 +91,10 @@ class Mpayments extends CI_Model{
 	public function complete_payment($order_ref, $data ){
 		return $this->db->where('id', $order_ref)->update($this->table, $data);
 	}
+
+
+	public function log($response){
+		$this->db->insert('mpayment_logger', array('response'=> $response));
+	}
+
 }

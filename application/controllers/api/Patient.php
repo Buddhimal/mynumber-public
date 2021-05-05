@@ -1803,6 +1803,8 @@ class Patient extends REST_Controller
 											if(isset($apiresponse) && !empty($apiresponse) && is_object($apiresponse)){
 
 												if( strtoupper($apiresponse->statusCode) == "S1000" ){
+													// change above as P1003
+													// 
 													$now =strtotime('now');
 
 
@@ -1827,7 +1829,7 @@ class Patient extends REST_Controller
 													$response->status_code = APIResponseCode::SUCCESS;
 													$response->msg = 'Transaction initiated successfully';
 													$response->error_msg = NULL;
-													$response->response =  array( 'id'=> $transaction_id, 'pin_required' => false, 'appointment_number' => $appointment->serial_number ); 
+													$response->response =  array( 'id'=> $transaction_id, 'pin_required' => false, 'appointment' => $appointment->serial_number ); 
 													$this->response($response, REST_Controller::HTTP_OK);
 
 												}else{
@@ -1853,11 +1855,11 @@ class Patient extends REST_Controller
 
 										}else if($career == MobileCareer::Dialog ){
 
-											echo "dialog ";
+											//echo "dialog ";
 											$request = DialogRequestFactory::charge_request($public->telephone, "mynumber appointment charge", $transaction_id);
 											$apiresponse = $this->dialogpin->charge($request);
 
-											echo "charge response rcvd : " . print_r($apiresponse, true);
+											//echo "charge response rcvd : " . print_r($apiresponse, true);
 
 
 
@@ -1871,7 +1873,7 @@ class Patient extends REST_Controller
 													$response->status_code = APIResponseCode::SUCCESS;
 													$response->msg = 'Transaction initiated successfully, waiting for PIN';
 													$response->error_msg = NULL;
-													$response->response = array( 'id'=> $transaction_id, 'pin_required' => true , 'appointment_number' => 0 );
+													$response->response = array( 'id'=> $transaction_id, 'pin_required' => true , 'appointment' => 0 );
 													$this->response($response, REST_Controller::HTTP_OK);
 												}else{
 													// return failed include apirespons's error message
@@ -2199,6 +2201,57 @@ class Patient extends REST_Controller
 			$this->response($response, $response->status);
 
 		}
+
+
+		/*
+		 * This will receives the notification from mspace
+
+		 * If accepted
+
+		 	{
+				"timeStamp":"04-May-2021 17:08",
+				"totalAmount":"7.00",
+				"externalTrxId":"256091234",
+				"balanceDue":"0",
+				"statusDetail":"Request was Successfully processed, Due amount fully paid.",
+				"currency":"LKR",
+				"version":"1.0",
+				"internalTrxId":"121050417080046",
+				"paidAmount":"7.00",
+				"referenceId":"330",
+				"statusCode":"S1000"
+			}
+
+			If rejected
+
+			{
+				"timeStamp":"04-May-2021 17:11",
+				"totalAmount":"0",
+				"externalTrxId":"256091234",
+				"balanceDue":"7.00",
+				"statusDetail":"Charging Authorization Rejected.",
+				"currency":"LKR",
+				"version":"1.0",
+				"internalTrxId":"121050417100047",
+				"paidAmount":"0",
+				"referenceId":"331",
+				"statusCode":"E1406"
+			}
+
+		 */
+		public function MobitelNotification_post(){
+			
+			$method = $_SERVER['REQUEST_METHOD'];
+			if($method == 'POST') {
+				$post = $this->input->post();
+				if( isset($post) && !empty($post) && !is_null($post) ){
+					$this->payments->log( json_encode( $post));
+				}
+			}else{
+				// ignore, 
+			}
+		}
+
 	//endregion
 
 }

@@ -80,7 +80,7 @@ $route['api/public/(:any)/appointments/monthly/(:any)/(:any)']['GET'] = 'api/pat
 
 
 $route['api/public/(:any)/addtobill/(:any)/verify']['PUT'] = 'api/patient/MobilePayComplete/$1/$2';
-$route['api/public/(:any)/addtobill']['POST'] = 'api/patient/PaymentInit/$1';
+$route['api/public/(:any)/paynow']['POST'] = 'api/patient/PaymentInit/$1';
 $route['api/public/(:any)/ipg/(:any)/finish']['PUT'] = 'api/patient/PaymentComplete/$1/$2';
 
 
@@ -106,3 +106,4 @@ $route['translate_uri_dashes'] = FALSE;
 //
 
 
+$rout['api/public/msms']['POST'] = 'api/patient/MobitelNotification';
