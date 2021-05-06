@@ -362,6 +362,7 @@ class Patient extends REST_Controller
 											if(false !== $otp_record){
 
 												$career_reference = json_decode( $otp_record['career_reference'] );
+
 												if(strtoupper($apiresponse->statusCode) == "S1000" ){
 													//sending the otp ref back so app can advertise it back when making otp verify call
 													$public->otp_ref = $otp_record['id'];

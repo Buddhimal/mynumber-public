@@ -57,7 +57,7 @@ class Mobitelcass
 	            throw new Exception( 'Error: CURL request failed - '. stripslashes( curl_error( $ch ) ) );
 	        }
 
-			return $response;
+			return json_decode($response);
 
 		}catch(Exception $ex){
 			// $ex->getMessage();
