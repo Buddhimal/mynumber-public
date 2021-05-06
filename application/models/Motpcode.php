@@ -139,7 +139,8 @@ class Motpcode extends CI_Model
 
 
 	public function create_mobitel_otp($public_id, $mobile, $references) {
-		if($this->create_with_reference($public_id, $mobile, $reference)){
+		$result = $this->create_with_reference($public_id, $mobile, $references);
+		if( $result !== false ){
 			return $this->post;
 		}else{
 			return false;

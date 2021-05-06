@@ -18,6 +18,7 @@ class EntityType
 
 class APIResponseCode{
 	const SUCCESS = 2000;
+	const ALLREADY_EXISTS = 2008;
 	const SUCCESS_WITH_ERRORS = 2001;
 	const INTERNAL_SERVER_ERROR = 5000;
 	const BAD_REQUEST = 4000;

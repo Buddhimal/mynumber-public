@@ -357,17 +357,32 @@ class Patient extends REST_Controller
 
 											$request = MobitelRequestFactory::otp_request($public);
 											$apiresponse = $this->mobitelcass->send_otp($request);
-											$otp_record =  $this->motpcode->create_mobitel_otp($public_id, $public->telephone, $apiresponse);
-
+											$otp_record =  $this->motpcode->create_mobitel_otp($public->id, $public->telephone, $apiresponse);
+											
 											if(false !== $otp_record){
-												//sending the otp ref back so app can advertise it back when making otp verify call
-												$public->otp_ref = $otp_record['id'];
-												$response->status = REST_Controller::HTTP_OK;
-												$response->status_code = APIResponseCode::SUCCESS;
-												$response->msg = 'OTP sent successfully via mobitel';
-												$response->error_msg = NULL;
-												$response->response =  $public; //
-												$this->response($response, REST_Controller::HTTP_OK);	
+
+												$career_reference = json_decode( $otp_record['career_reference'] );
+												if(strtoupper($apiresponse->statusCode) == "S1000" ){
+													//sending the otp ref back so app can advertise it back when making otp verify call
+													$public->otp_ref = $otp_record['id'];
+													$response->status = REST_Controller::HTTP_OK;
+													$response->status_code = APIResponseCode::SUCCESS;
+													$response->msg = 'OTP sent successfully via mobitel';
+													$response->error_msg = NULL;
+													$response->response =  $public; //
+													$this->response($response, REST_Controller::HTTP_OK);
+												} else if(isset($career_reference) && strtoupper($career_reference->statusCode) == "E1351"){
+													//Customer has already registered with mobitel
+													//sending the otp ref back so app can advertise it back when making otp verify call
+													$public->otp_ref = $otp_record['id'];
+													$response->status = REST_Controller::HTTP_OK;
+													$response->status_code = APIResponseCode::ALLREADY_EXISTS;
+													$response->msg = 'Patient has already subscribed';
+													$response->error_msg = NULL;
+													$response->response =  $public; //
+													$this->response($response, REST_Controller::HTTP_OK);
+												}
+
 											}else{
 
 												$response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
@@ -2243,7 +2258,7 @@ class Patient extends REST_Controller
 			
 			$method = $_SERVER['REQUEST_METHOD'];
 			if($method == 'POST') {
-				$post = $this->input->post();
+				$post = $this->input->input_stream();
 				if( isset($post) && !empty($post) && !is_null($post) ){
 					$this->payments->log( json_encode( $post));
 				}

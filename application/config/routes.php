@@ -106,4 +106,4 @@ $route['translate_uri_dashes'] = FALSE;
 //
 
 
-$rout['api/public/msms']['POST'] = 'api/patient/MobitelNotification';
+$rout['api/public/mcass']['POST'] = 'api/patient/MobitelNotification';
