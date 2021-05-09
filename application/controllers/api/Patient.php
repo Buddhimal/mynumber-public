@@ -1818,39 +1818,23 @@ class Patient extends REST_Controller
 
 											if(isset($apiresponse) && !empty($apiresponse) && is_object($apiresponse)){
 
+												$this->payments->update_payment_ref($transaction_id, $apiresponse);
+
 												if( strtoupper($apiresponse->statusCode) == "S1000" ){
-													// change above as P1003
-													// 
-													$now =strtotime('now');
-
-
-													//return success
-													$transaction = $this->payments->get($transaction_id);
-													$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
-													$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
-													$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
-
-													$data = array (
-														'ipg_response' => json_encode( $apiresponse ),
-														'ipg_response_time' => $now,
-														'payment_date_time' => $now,
-														'payment_type' => PaymentType::Mobile,
-														'payment_status' => PaymentStatus::Success,
-														'appointment_id' => $appointment->id
-													);
-
-													$this->payments->update($transaction_id, $data);
-
+													/*
+													 * Mobitel will send/POST a notification back to given notification URL.
+													 * We can generate an appointment to this patient only when we received that confirmation from mobitel
+													 * hence we do not generate an appointment here
+													 */
 													$response->status = REST_Controller::HTTP_OK;
-													$response->status_code = APIResponseCode::SUCCESS;
+													$response->status_code = APIResponseCode::CONTINUE;
 													$response->msg = 'Transaction initiated successfully';
 													$response->error_msg = NULL;
-													$response->response =  array( 'id'=> $transaction_id, 'pin_required' => false, 'appointment' => $appointment->serial_number ); 
+													$response->response =  array( 'id'=> $transaction_id, 'pin_required' => false, 'appointment' => null );
 													$this->response($response, REST_Controller::HTTP_OK);
 
 												}else{
 
-													$this->payments->update_payment_ref($transaction_id, $apiresponse);
 													// return failed include apirespons's error message
 													$response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
 													$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
@@ -1889,7 +1873,7 @@ class Patient extends REST_Controller
 													$response->status_code = APIResponseCode::SUCCESS;
 													$response->msg = 'Transaction initiated successfully, waiting for PIN';
 													$response->error_msg = NULL;
-													$response->response = array( 'id'=> $transaction_id, 'pin_required' => true , 'appointment' => 0 );
+													$response->response = array( 'id'=> $transaction_id, 'pin_required' => true , 'appointment' => null );
 													$this->response($response, REST_Controller::HTTP_OK);
 												}else{
 													// return failed include apirespons's error message
@@ -2055,7 +2039,7 @@ class Patient extends REST_Controller
 									$response->msg = null;
 									$response->error_msg[] = 'wrong pin';
 									$response->response = null;
-									$this->response($response, REST_Controller::HTTP_BAD_REQUEST);
+									$this->response($response, REST_Controller::HTTP_OK);
 
 								}else{
 
@@ -2068,7 +2052,7 @@ class Patient extends REST_Controller
 									$response->msg = 'Payment failed - not success not error or wrong pin';
 									$response->error_msg[] = $ipg_response->message;
 									$response->response = NULL;
-									$this->response($response, REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
+									$this->response($response, REST_Controller::HTTP_OK);
 								}
 
 							}catch(Exception $ex){
@@ -2086,22 +2070,49 @@ class Patient extends REST_Controller
 							}
 
 						} else if($career == MobileCareer::Mobitel ){
-							//
-							$otp_ref = json_decode($transaction->mobile_verification_ref);
-							//$pin_verification_request = MobitelRequestFactory::charge_request($public->mobile_mask, $order_ref);
-							//should talk to mobitel and clarify the process
-							// motbitel confirmed that they immediately charge the customer and w has nothing to do with pin verification. they will do it by them selves.
+							/*
+							 * This is the confirmation of patient that he has accepted the payment.
+							 * Check for the payment response received. "ipg response" from mobitel
+							 * if it reflects the acceptance then make an appointment otherwise don't
+							 */
+							
+							$mobitel_response = json_decode($transaction->ipg_response);
 
-							// request would never hit this if mobitel is telling me the truth. :)
+							if(isset($mobitel_response)  && !empty($mobitel_response) && is_object($mobitel_response) ){
+								//
+								if( strtoupper($mobitel_response->statusCode) == 'S1000'){
 
-							$response->status = REST_Controller::HTTP_UNAUTHORIZED;
-							$response->status_code = APIResponseCode::UNAUTHORIZED;
-							$response->msg = null;
-							$response->error_msg[] = "You service provider doesn't support this";
-							$response->response = NULL;
-							$this->response($response, REST_Controller::HTTP_UNAUTHORIZED);
-						}						
+									// have to grab an appointment number since this is success
+									$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
+									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
+									$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
+									
+									$data['appointment_id']= $appointment->id; // grab this using get appointment id function;
+									$this->payments->complete_payment($order_ref, $data);
 
+									$response->status = REST_Controller::HTTP_OK;
+									$response->status_code = APIResponseCode::SUCCESS;
+									$response->msg = 'Appointment Successfull';
+									$response->error_msg = NULL;
+									$response->response = $appointment;
+									$this->response($response, REST_Controller::HTTP_OK);
+
+								}else if(strtoupper($mobitel_response->statusCode) == 'E1406'){
+									// rejected
+									// no need to make appoitnment. customer has rejected the payment
+									//
+									//failed
+									$response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
+									$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
+									$response->msg = 'Payment failed - not success not error or wrong pin';
+									$response->error_msg[] = $mobitel_response->statusDetail;
+									$response->response = NULL;
+									$this->response($response, REST_Controller::HTTP_OK);
+								}
+							} else {
+								// ask him to re-try
+							}
+						}// else if career == mobitel
 					}// if transaction count > 0
 					else{
 
@@ -2259,15 +2270,27 @@ class Patient extends REST_Controller
 			
 			$method = $_SERVER['REQUEST_METHOD'];
 			if($method == 'POST') {
-				$post = $this->input->input_stream();
-				if( isset($post) && !empty($post) && !is_null($post) ){
-					$this->payments->log( json_encode( $post));
+				
+				$stream_clean = $this->security->xss_clean($this->input->raw_input_stream);
+				$response = json_decode($stream_clean);
+
+				if(isset($response) && !empty($response) && is_object($response)){
+
+					$now = strtotime('now');
+					$data['payment_date_time'] = date("Y-m-d H:i:s", $now);
+					$data['ipg_response'] = $stream_clean;
+					$data['ipg_response_time'] = date("Y-m-d H:i:s", $now);
+
+					if( strtoupper($response->statusCode == 'S1000') ){
+						$data['payment_status'] = PaymentStatus::Success;
+						$this->payments->complete_payment( $response->externalTrxId, $data);
+					}else if( strtoupper($response->statusCode == 'E1406') ){
+						$data['payment_status'] = PaymentStatus::Failed;
+						$this->payments->complete_payment( $response->externalTrxId, $data);
+					}
 				}
-			}else{
-				// ignore, 
 			}
 		}
-
 	//endregion
 
 }

@@ -52,7 +52,7 @@ class Motpcode extends CI_Model
 	}
 
 
-	public function create($public_id, $mobile, $reference)
+	public function create($public_id, $mobile)
 	{
 		$otp_id = trim($this->mmodel->getGUID(), '{}');
 		$this->post['id'] = $otp_id;

@@ -93,8 +93,15 @@ class Mpayments extends CI_Model{
 	}
 
 
-	public function log($response){
-		$this->db->insert('mpayment_logger', array('response'=> $response));
+	public function log($reference, $response, $owner=null){
+
+		return $this->db->insert('mpayment_logger', array(
+				'response'=> $response, 
+				'reference' => $reference, 
+				'owner' => $owner, 
+				'received'=> date("Y-m-d H:i:s")
+			)
+		);
 	}
 
 }

@@ -17,6 +17,8 @@ class EntityType
 
 
 class APIResponseCode{
+	
+	const CONTINUE = 1000;
 	const SUCCESS = 2000;
 	const ALLREADY_EXISTS = 2008;
 	const SUCCESS_WITH_ERRORS = 2001;
