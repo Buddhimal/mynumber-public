@@ -1636,7 +1636,6 @@ class Patient extends REST_Controller
 							$response->msg = 'Session Details for today';
 							$response->error_msg = NULL;
 							$response->response['sessions'] = $sessions;
-							$response->response['clinic_id'] = $clinic_id; // Added on 14/05/2021 by asanka upon request of Oshan. 
 							$this->response($response, REST_Controller::HTTP_OK);
 						} else {
 							$response->status = REST_Controller::HTTP_OK;

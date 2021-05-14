@@ -126,18 +126,7 @@ class Mclinicsession extends CI_Model
 		$current_time = DateHelper::utc_time();
 		$current_date = DateHelper::utc_date();
 
-		$all_sessions = $this->db
-//			->select("s.*,d.day,d.starting_time,d.end_time")
-//			->from('clinic_session as s')
-//			->join('clinic_session_days as d', 'd.session_id=s.id')
-//			->where(sprintf("s.clinic_id='%s' and s.is_deleted=0 and s.is_active=1 and d.is_deleted=0 and d.is_active=1", $clinic_id))
-//			->where('d.day', $day)
-//			->where('d.starting_time >', $current_time)
-//			->where('d.off', false)
-//			->where_not_in("$current_date",'select DATE(holiday) holiday from clinic_holidays where clinic_id=$clinic_id and is_active=1 and is_deleted=0')
-//			->order_by("ABS('$current_datetime' - UNIX_TIMESTAMP(d.starting_time))")
-//			->get();
-			->query("SELECT
+		$all_sessions = $this->db->query("SELECT
 								`s`.*,
 								`d`.`day`,
 								`d`.`starting_time`,
