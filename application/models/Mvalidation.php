@@ -30,6 +30,7 @@ class Mvalidation extends CI_Model
         $this->db->where($column, $value);
         $this->db->where('is_active', 1);
         $this->db->where('is_deleted', 0);
+
         $result = $this->db->get();
         return ($result->num_rows() > 0);
     }

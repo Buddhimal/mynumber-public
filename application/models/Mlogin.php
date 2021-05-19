@@ -61,6 +61,8 @@ class Mlogin extends CI_Model
         $this->db->where('password', $this->post['password']);
         $this->db->where('entity_type', $entity_type);
         $this->db->where('is_confirmed', 1);
+        $this->db->where('is_deleted', 0);
+        $this->db->where('is_active', 1);
 
         return $this->db->get()->row();
     }
@@ -71,7 +73,7 @@ class Mlogin extends CI_Model
         $login_password = $this->utilityhandler->_salt($this->post["password"], $this->post['username']);
         $this->post['id'] = trim($this->mmodel->getGUID(), '{}');
         $this->post['is_deleted'] = 0;
-        $this->post['is_active'] = 1;
+        $this->post['is_active'] = 0;
         $this->post['updated'] = date("Y-m-d H:i:s");
         $this->post['created'] = date("Y-m-d H:i:s");
         $this->post['updated_by'] = $clinic_id;
@@ -105,7 +107,6 @@ class Mlogin extends CI_Model
             ->from($this->table)
             ->where('entity_id', $entity_id)
             ->where('is_active', 1)
-//            ->where('is_confirmed', 1)
             ->where('is_deleted', 0)
             ->get();
 

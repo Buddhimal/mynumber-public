@@ -31,6 +31,9 @@ class Motpcode extends CI_Model
 		}
 	}
 
+	public function otp_code(){
+		return $this->post['otp_code'];
+	}
 
 	public function is_career_verification_needed(){
 		return ( isset($this->post['career_reference']) && !empty($this->post['career_reference']));
@@ -179,7 +182,7 @@ class Motpcode extends CI_Model
 	public function get_record_by_reference(){
 		$this->db->select('*');
 		$this->db->from($this->table);
-		$this->db->where('career_reference', $this->post['career_reference']);
+		$this->db->where('id', $this->post['career_reference']);
 		return $this->db->get()->row();
 	}
 

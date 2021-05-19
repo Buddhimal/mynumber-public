@@ -316,8 +316,10 @@ class Patient extends REST_Controller
 
 		public function RegisterPublic_post()
 		{
+
 			$method = $_SERVER['REQUEST_METHOD'];
 			$response = new stdClass();
+
 			if ($method == 'POST') {
 
 				$check_auth_client = $this->mmodel->check_auth_client();
@@ -350,7 +352,7 @@ class Patient extends REST_Controller
 
 									if ($login) {
 
-										$mapper = new CareerMap($login_data['mobile']);
+										$mapper = new CareerMap( $login_data['mobile'] );
 										$career = $mapper->get_career_id();
 
 										if($career == MobileCareer::Mobitel){
@@ -364,6 +366,7 @@ class Patient extends REST_Controller
 												$career_reference = json_decode( $otp_record['career_reference'] );
 
 												if(strtoupper($apiresponse->statusCode) == "S1000" ){
+
 													//sending the otp ref back so app can advertise it back when making otp verify call
 													$public->otp_ref = $otp_record['id'];
 													$response->status = REST_Controller::HTTP_OK;
@@ -372,6 +375,7 @@ class Patient extends REST_Controller
 													$response->error_msg = NULL;
 													$response->response =  $public; //
 													$this->response($response, REST_Controller::HTTP_OK);
+
 												} else if(isset($career_reference) && strtoupper($career_reference->statusCode) == "E1351"){
 													//Customer has already registered with mobitel
 													//sending the otp ref back so app can advertise it back when making otp verify call
@@ -453,6 +457,9 @@ class Patient extends REST_Controller
 				$response->error_msg = 'Invalid Request Method.';
 				$this->response($response, REST_Controller::HTTP_OK);
 			}
+
+
+
 		}
 
 		public function PublicByUniqueId_get($public_id)
@@ -1175,30 +1182,38 @@ class Patient extends REST_Controller
 					if($this->motpcode->is_career_verification_needed()){
 
 						$otp_record = $this->motpcode->get_record_by_reference();
-						$public = $this->mpublic->get_record($otp_record->clinic_id);
+						$public = $this->mpublic->get_record($otp_record->clinic_id); // this is the public id// public ID is stored onto this at the opt reference creation.
 
 						$mapper = new CareerMap($public->telephone);
 						$career = $mapper->get_career_id();
 
 						if( $career == MobileCareer::Mobitel ) {
 
-							$request = MobitelRequestFactory::otp_verification_request( $public );
-							$apiresponse = $this->mobitelcass->verify_otp( $request_data );
+							$career_reference = json_decode($otp_record->career_reference);
+
+							$otp_request_data = new stdClass();
+							$otp_request_data->referenceNo = $career_reference->referenceNo;
+							$otp_request_data->otp = $this->motpcode->otp_code();
+
+							$request = MobitelRequestFactory::otp_verification_request( $otp_request_data );
+							$apiresponse = $this->mobitelcass->verify_otp( $request );
+
 							if(isset($apiresponse) && !empty($apiresponse)){
-								if($apiresponse->statusCode=="S1000" || strtolower($apiresponse->statusDetail) == "success"){
+
+								if($apiresponse->statusCode =="S1000" || strtolower($apiresponse->statusDetail) == "success"){
 
 									//otp verification success
 									$masked_subscriber_id = $apiresponse->subscriberId; 
 									// save this to masked id column on public table;
-									if( $this->mpublic->update_mobile_mask( $public->id, $masked_subscriber_id ) ){
-
-										$this->mlogin->confirm_login($public_id);
+									if( $this->mpublic->update_mobile_mask( $public_id, $masked_subscriber_id ) ) {
+										$this->mlogin->confirm_login( $public_id );
 										$response->status = REST_Controller::HTTP_OK;
 										$response->status_code = APIResponseCode::SUCCESS;
 										$response->msg = 'OTP Validation Successful..';
 										$response->error_msg = NULL;
 										$response->response['msg'] = 'OTP Validation Successful..';
-										$this->response($response, REST_Controller::HTTP_OK);
+										$this->response( $response, REST_Controller::HTTP_OK );
+
 									}else{
 										$response->status = REST_Controller::HTTP_BAD_REQUEST;
 										$response->status_code = APIResponseCode::BAD_REQUEST;
@@ -1788,6 +1803,7 @@ class Patient extends REST_Controller
 					if ($check_auth_client == true) {
 
 						$json_data = $this->post('json_data'); // Expecting this to contain payment_type, public_id, 
+						$json_data['public_id'] = $patient_id;
 
 						$this->payments->set_data($json_data);
 						
@@ -1812,7 +1828,7 @@ class Patient extends REST_Controller
 										 */
 										if($career == MobileCareer::Mobitel ){
 
-											$request = MobitelRequestFactory::charge_request($public->mobile_mask, $transation_id);
+											$request = MobitelRequestFactory::charge_request($public->mobile_mask, $transaction_id);
 											$apiresponse = $this->mobitelcass->charge($request);
 
 											if(isset($apiresponse) && !empty($apiresponse) && is_object($apiresponse)){

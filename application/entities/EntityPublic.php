@@ -19,6 +19,7 @@ class EntityPublic
 	public $clinic_id = null;
 	public $device = null;
 	public $os = null;
+	public $mobile_mask=null;
 
 
 	function __construct($data = null)
@@ -31,6 +32,7 @@ class EntityPublic
 			$this->address = $data->address;
 			$this->nic = $data->nic;
 			$this->dob = $data->dob;
+			$this->mobile_mask = $data->mobile_mask;
 			if(!is_null($data->dob)){
                 $date = new DateTime($data->dob);
                 $now = new DateTime();
