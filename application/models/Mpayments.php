@@ -33,8 +33,11 @@ class Mpayments extends CI_Model{
 			$now = date("Y-m-d H:i:s");
 
 			$payment_id = trim($this->mmodel->getGUID(), '{}');
+			$transaction_id = str_replace('-', '', $payment_id);
+
 			$insert = array(
 				'id' => $payment_id,
+				'transaction_id' => $transaction_id,
 				'public_id' => $public_id,
 				'clinic_id' => $this->post['clinic'],
 				'session_id' => $this->post['session'],
@@ -45,7 +48,7 @@ class Mpayments extends CI_Model{
 			);
 
 			if($this->db->insert($this->table, $insert)){
-				return $payment_id;
+				return $this->get($payment_id);
 			}else{
 				throw new Exception("Failed to Insert Pyament Record");
 			}
@@ -92,13 +95,16 @@ class Mpayments extends CI_Model{
 		return $this->db->where('id', $order_ref)->update($this->table, $data);
 	}
 
+	public function complete_mobitel_payment($order_ref, $data ){
+		return $this->db->where('transaction_id', $order_ref)->update($this->table, $data);
+	}
 
-	public function log($reference, $response, $owner=null){
+	public function log($response, $owner){
 
-		return $this->db->insert('mpayment_logger', array(
-				'response'=> $response, 
-				'reference' => $reference, 
-				'owner' => $owner, 
+		return $this->db->insert('payment_log', array(
+				'id' => trim($this->mmodel->getGUID(), '{}'),
+				'response'=> $response,
+				'public_id' => $owner, 
 				'received'=> date("Y-m-d H:i:s")
 			)
 		);

@@ -82,7 +82,7 @@ class Mobitelcass
 	// }
 
 	public function charge(MobitelDirectDebitRequest $payload){
-		return $this->post('subscription/send', $payload);
+		return $this->post('caas/direct/debit', $payload);
 	}
 }
 
@@ -224,7 +224,7 @@ class MobitelBalanceCheckRequest extends MobitelRequest {
 	{
 		parent::__construct();
 		$this->paymentInstrumentName = "Mobile Account";
-		$this->currency = "BDT";
+		$this->currency = "LKR";
 		$this->accountId = null; // change according to mobitels instructions. already asked for instructions
 	}
 }
@@ -240,9 +240,9 @@ class MobitelDirectDebitRequest extends MobitelRequest {
 
 	public function __construct() {
 		parent::__construct();
-		$this->accountId = SOFTGEN_MOBITEL_ACC_NUMBER;
+		$this->accountId = ""; //SOFTGEN_MOBITEL_ACC_NUMBER;
 		$this->paymentInstrumentName = "Mobile Account";
 		$this->amount = Payments::DEFAULT_CHARGE;
-		$this->currency = "BDT";
+		$this->currency = "LKR";
 	}
 }

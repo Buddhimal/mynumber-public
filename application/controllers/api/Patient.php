@@ -142,7 +142,11 @@ class Patient extends REST_Controller
 
 							$request = MobitelRequestFactory::otp_request($public); 
 							$apiresponse = $this->mobitelcass->send_otp($request);
+
+							$this->payments->log(json_encode($apiresponse), $public_id);
+
 							$otp_record =  $this->motpcode->create_mobitel_otp($public_id, $public->telephone, $apiresponse);
+
 
 							if(false !== $otp_record){
 								$public = new stdClass();
@@ -161,8 +165,7 @@ class Patient extends REST_Controller
 								$response->error_msg[] = 'Failed to send OTP..';
 								$response->response = NULL;
 								$this->response($response, REST_Controller::HTTP_OK);
-							}
-							
+							}							
 
 						}elseif ($this->motpcode->resend_otp($public_id)) {
 							$response->status = REST_Controller::HTTP_OK;
@@ -359,6 +362,11 @@ class Patient extends REST_Controller
 
 											$request = MobitelRequestFactory::otp_request($public);
 											$apiresponse = $this->mobitelcass->send_otp($request);
+
+											//Log
+											$this->payments->log(json_encode($apiresponse), $public->id);
+
+
 											$otp_record =  $this->motpcode->create_mobitel_otp($public->id, $public->telephone, $apiresponse);
 											
 											if(false !== $otp_record){
@@ -1198,6 +1206,9 @@ class Patient extends REST_Controller
 							$request = MobitelRequestFactory::otp_verification_request( $otp_request_data );
 							$apiresponse = $this->mobitelcass->verify_otp( $request );
 
+							//Log
+							$this->payments->log(json_encode($apiresponse), $public->id);
+
 							if(isset($apiresponse) && !empty($apiresponse)){
 
 								if($apiresponse->statusCode =="S1000" || strtolower($apiresponse->statusDetail) == "success"){
@@ -1816,9 +1827,9 @@ class Patient extends REST_Controller
 								$mapper = new CareerMap($public->telephone);
 								$career = $mapper->get_career_id();
 
-								$transaction_id = $this->payments->init_transaction($patient_id);
+								$transaction = $this->payments->init_transaction($patient_id);
 
-								if(isset($transaction_id) && !empty($transaction_id)){
+								if(isset($transaction) && !empty($transaction)){
 
 									if(PaymentType::Mobile == $this->payments->pay_type() ){
 
@@ -1828,14 +1839,18 @@ class Patient extends REST_Controller
 										 */
 										if($career == MobileCareer::Mobitel ){
 
-											$request = MobitelRequestFactory::charge_request($public->mobile_mask, $transaction_id);
+											$request = MobitelRequestFactory::charge_request($public->mobile_mask, $transaction->transaction_id);
+
 											$apiresponse = $this->mobitelcass->charge($request);
 
+											//Log
+											$this->payments->log(json_encode($apiresponse), $public->id);
+											
 											if(isset($apiresponse) && !empty($apiresponse) && is_object($apiresponse)){
 
-												$this->payments->update_payment_ref($transaction_id, $apiresponse);
+												$this->payments->update_payment_ref($transaction->id, $apiresponse);
 
-												if( strtoupper($apiresponse->statusCode) == "S1000" ){
+												if( strtoupper($apiresponse->statusCode) == "P1003" ){
 													/*
 													 * Mobitel will send/POST a notification back to given notification URL.
 													 * We can generate an appointment to this patient only when we received that confirmation from mobitel
@@ -1845,7 +1860,7 @@ class Patient extends REST_Controller
 													$response->status_code = APIResponseCode::CONTINUE;
 													$response->msg = 'Transaction initiated successfully';
 													$response->error_msg = NULL;
-													$response->response =  array( 'id'=> $transaction_id, 'pin_required' => false, 'appointment' => null );
+													$response->response =  array( 'id'=> $transaction->id, 'pin_required' => false, 'appointment' => null );
 													$this->response($response, REST_Controller::HTTP_OK);
 
 												}else{
@@ -1871,16 +1886,19 @@ class Patient extends REST_Controller
 										}else if($career == MobileCareer::Dialog ){
 
 											//echo "dialog ";
-											$request = DialogRequestFactory::charge_request($public->telephone, "mynumber appointment charge", $transaction_id);
+											$request = DialogRequestFactory::charge_request($public->telephone, "mynumber appointment charge", $transaction->id);
 											$apiresponse = $this->dialogpin->charge($request);
 
+											//Log
+											$this->payments->log(json_encode($apiresponse), $public->id);
+											
 											//echo "charge response rcvd : " . print_r($apiresponse, true);
 
 
 
 											if(isset($apiresponse) && !empty($apiresponse) && is_object($apiresponse)){
 
-												$this->payments->update_payment_ref($transaction_id, $apiresponse);
+												$this->payments->update_payment_ref($transaction->id, $apiresponse);
 
 												if( strtoupper($apiresponse->statusCode) == "SUCCESS" ){
 													//return success
@@ -1888,7 +1906,7 @@ class Patient extends REST_Controller
 													$response->status_code = APIResponseCode::SUCCESS;
 													$response->msg = 'Transaction initiated successfully, waiting for PIN';
 													$response->error_msg = NULL;
-													$response->response = array( 'id'=> $transaction_id, 'pin_required' => true , 'appointment' => null );
+													$response->response = array( 'id'=> $transaction->id, 'pin_required' => true , 'appointment' => null );
 													$this->response($response, REST_Controller::HTTP_OK);
 												}else{
 													// return failed include apirespons's error message
@@ -1916,7 +1934,7 @@ class Patient extends REST_Controller
 										$response->status_code = APIResponseCode::SUCCESS;
 										$response->msg = 'Transaction initiated successfully, waiting for IPG completion';
 										$response->error_msg = NULL;
-										$response->response = $transaction_id;
+										$response->response = $transaction->id;
 										$this->response($response, REST_Controller::HTTP_OK);
 									}
 
@@ -1985,7 +2003,7 @@ class Patient extends REST_Controller
 			$response = new stdClass();
 			
 			// 
-			echo "completing transaction";
+			// echo "completing transaction";
 
 			if ($method == 'PUT') {
 
@@ -2016,9 +2034,13 @@ class Patient extends REST_Controller
 								
 								$ipg_response =  $this->dialogpin->pin($pin_verification_request);
 
+
 								if( isset($ipg_response) && !empty($ipg_response)){
 									throw new Exception("response empty");
 								}
+
+								//Log
+								$this->payments->log(json_encode($ipg_response), $public->id);
 
 								$now = strtotime('now');
 								$data['payment_date_time'] = date("Y-m-d H:i:s", $now);
@@ -2289,6 +2311,9 @@ class Patient extends REST_Controller
 				$stream_clean = $this->security->xss_clean($this->input->raw_input_stream);
 				$response = json_decode($stream_clean);
 
+				//Log
+				$this->payments->log(json_encode($ipg_response), null);
+
 				if(isset($response) && !empty($response) && is_object($response)){
 
 					$now = strtotime('now');
@@ -2298,10 +2323,10 @@ class Patient extends REST_Controller
 
 					if( strtoupper($response->statusCode == 'S1000') ){
 						$data['payment_status'] = PaymentStatus::Success;
-						$this->payments->complete_payment( $response->externalTrxId, $data);
+						$this->payments->complete_mobitel_payment( $response->externalTrxId, $data);
 					}else if( strtoupper($response->statusCode == 'E1406') ){
 						$data['payment_status'] = PaymentStatus::Failed;
-						$this->payments->complete_payment( $response->externalTrxId, $data);
+						$this->payments->complete_mobitel_payment( $response->externalTrxId, $data);
 					}
 				}
 			}
