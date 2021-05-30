@@ -92,7 +92,7 @@ class PaymentStatus
 
 class Payments{
     const DEFAULT_CHARGE=05.00;
-	// const DOCTORS_PAY = 30.00;
+	const DOCTORS_PAY = 00.00;
 
 	// public static function get_percentage(){
 	// 	return (self::DOCTORS_PAY/self::DEFAULT_CHARGE)*100;

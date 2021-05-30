@@ -91,7 +91,7 @@ class Mclinicappointment extends CI_Model
 			} else {
 				$this->post['appointment_charge'] = Payments::DEFAULT_CHARGE;
 				$this->post['doctors_pay'] = Payments::DOCTORS_PAY;
-				$this->post['net_pay'] = Payments::DEFAULT_CHARGE - Payments::DOCTORS_PAY;
+				$this->post['net_pay'] = Payments::DEFAULT_CHARGE;
 			}
 			$this->post['appointment_status_updated'] = date("Y-m-d H:i:s");
 			$this->post['is_deleted'] = 0;
@@ -105,11 +105,10 @@ class Mclinicappointment extends CI_Model
 			$this->mmodel->insert($this->table, $this->post);
 
 			if ($this->db->affected_rows() > 0) {
-
+				echo "appointment id: " . $appointment_id . " ]";
 				$appointment = $this->get_appointment_full_detail($appointment_id);
 
-				$this->messagesender->send_sms($this->post['patient_phone'], SMSTemplate::NewAppointmentSMS((array)$appointment));
-
+				$this->messagesender->send_sms($patient->telephone, SMSTemplate::NewAppointmentSMS((array)$appointment));
 				//create email record
 				$email_data['sender_name'] = EmailSender::mynumber_info;
 				$email_data['send_to'] = $this->mpublic->get($patient_id)->email;

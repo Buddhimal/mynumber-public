@@ -1843,6 +1843,8 @@ class Patient extends REST_Controller
 
 											$apiresponse = $this->mobitelcass->charge($request);
 
+											die('--');
+
 											//Log
 											$this->payments->log(json_encode($apiresponse), $public->id);
 											
@@ -2003,7 +2005,7 @@ class Patient extends REST_Controller
 			$response = new stdClass();
 			
 			// 
-			// echo "completing transaction";
+			// echo "$method";
 
 			if ($method == 'PUT') {
 
@@ -2157,7 +2159,7 @@ class Patient extends REST_Controller
 						$response->status = REST_Controller::HTTP_UNAUTHORIZED;
 						$response->status_code = APIResponseCode::UNAUTHORIZED;
 						$response->msg = NULL;
-						$response->error_msg[] = 'Invalid request method';
+						$response->error_msg[] = 'Transaction did not found';
 						$response->response = NULL;
 					}
 
@@ -2309,11 +2311,11 @@ class Patient extends REST_Controller
 			if($method == 'POST') {
 				
 				$stream_clean = $this->security->xss_clean($this->input->raw_input_stream);
-				$response = json_decode($stream_clean);
 
 				//Log
-				$this->payments->log(json_encode($ipg_response), null);
+				$this->payments->log(json_encode($stream_clean), null);
 
+				$response = json_decode($stream_clean);
 				if(isset($response) && !empty($response) && is_object($response)){
 
 					$now = strtotime('now');
