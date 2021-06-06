@@ -105,7 +105,7 @@ class Mclinicappointment extends CI_Model
 			$this->mmodel->insert($this->table, $this->post);
 
 			if ($this->db->affected_rows() > 0) {
-				echo "appointment id: " . $appointment_id . " ]";
+				// echo "appointment id: " . $appointment_id . " ]";
 				$appointment = $this->get_appointment_full_detail($appointment_id);
 
 				$this->messagesender->send_sms($patient->telephone, SMSTemplate::NewAppointmentSMS((array)$appointment));

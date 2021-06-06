@@ -51,11 +51,6 @@ class Mobitelcass
 			));
 
 			$response = curl_exec($ch);
-
-			echo "curl response: <br/><pre>";
-			print_r($response);
-			echo "</pre>";
-
 			curl_close($ch);
 
 			if($response === false){

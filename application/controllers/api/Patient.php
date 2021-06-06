@@ -1843,8 +1843,6 @@ class Patient extends REST_Controller
 
 											$apiresponse = $this->mobitelcass->charge($request);
 
-											die('--');
-
 											//Log
 											$this->payments->log(json_encode($apiresponse), $public->id);
 											
@@ -1936,7 +1934,7 @@ class Patient extends REST_Controller
 										$response->status_code = APIResponseCode::SUCCESS;
 										$response->msg = 'Transaction initiated successfully, waiting for IPG completion';
 										$response->error_msg = NULL;
-										$response->response = $transaction->id;
+										$response->response =  array( 'id'=> $transaction->id, 'pin_required' => false , 'appointment' => null );
 										$this->response($response, REST_Controller::HTTP_OK);
 									}
 
@@ -2028,6 +2026,7 @@ class Patient extends REST_Controller
 
 						$ipg_response = null;
 						if( $career == MobileCareer::Dialog ){
+							//echo  "dialog <br/>";
 							//
 							try{
 
@@ -2114,13 +2113,13 @@ class Patient extends REST_Controller
 							 * Check for the payment response received. "ipg response" from mobitel
 							 * if it reflects the acceptance then make an appointment otherwise don't
 							 */
-							
+							//echo  "mobitel <br/>";
 							$mobitel_response = json_decode($transaction->ipg_response);
 
 							if(isset($mobitel_response)  && !empty($mobitel_response) && is_object($mobitel_response) ){
 								//
 								if( strtoupper($mobitel_response->statusCode) == 'S1000'){
-
+									//echo  "S1000 <br/>";
 									// have to grab an appointment number since this is success
 									$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
 									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
@@ -2141,6 +2140,7 @@ class Patient extends REST_Controller
 									// no need to make appoitnment. customer has rejected the payment
 									//
 									//failed
+									//echo  "E1406 <br/>";
 									$response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
 									$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
 									$response->msg = 'Payment failed - not success not error or wrong pin';
@@ -2149,7 +2149,14 @@ class Patient extends REST_Controller
 									$this->response($response, REST_Controller::HTTP_OK);
 								}
 							} else {
-								// ask him to re-try
+								//echo  "mobitel response is null or not an object <br/>";
+								// incorrect transaction id
+								$response->status = REST_Controller::HTTP_CONTINUE;
+								$response->status_code = APIResponseCode::CONTINUE;
+								$response->msg = NULL;
+								$response->error_msg[] = 'Confirm the payment first';
+								$response->response = NULL;
+								$this->response($response, REST_Controller::HTTP_OK);
 							}
 						}// else if career == mobitel
 					}// if transaction count > 0
@@ -2161,9 +2168,8 @@ class Patient extends REST_Controller
 						$response->msg = NULL;
 						$response->error_msg[] = 'Transaction did not found';
 						$response->response = NULL;
+						$this->response($response, REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
 					}
-
-
 				}// if Auth == true
 				else{
 					$response->status = REST_Controller::HTTP_UNAUTHORIZED;
@@ -2171,6 +2177,7 @@ class Patient extends REST_Controller
 					$response->msg = NULL;
 					$response->error_msg[] = 'Authentication failed';
 					$response->response = NULL;
+					$this->response($response, REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
 				}
 
 			}// if PUT
@@ -2180,9 +2187,9 @@ class Patient extends REST_Controller
 				$response->msg = NULL;
 				$response->error_msg[] = 'Invalid request method';
 				$response->response = NULL;
+				$this->response($response, REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
 			}
-
-			$this->response($response, $response->status);
+			// $this->response($response, $response->status);
 		}
 
 
