@@ -2206,8 +2206,10 @@ class Patient extends REST_Controller
 
 					
 					$transaction = $this->payments->get($order_ref);
+					
+					// print_r($transaction);
 
-					if(!is_null($transaction) && count($transaction) > 0  && $transaction->public_id == $patient_id){
+					if(!is_null($transaction) && $transaction->public_id == $patient_id){
 						$post = $this->put('json_data');
 						$now = strtotime('now');
 
@@ -2216,12 +2218,12 @@ class Patient extends REST_Controller
 						$data['ipg_response'] = json_encode($post);
 						$data['ipg_response_time'] = $now;
 
-						if( $data['status'] == PayHerePaymentStatus::OK ) {
+						if( $post['status'] == PayHerePaymentStatus::OK ) {
 
 							$data['payment_status'] = PaymentStatus::Success;
 
 							// have to grab an appointment number since this is success
-							$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
+							$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);							
 							$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
 							$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
 							$data['appointment_id']= $appointment->id; // grab this using get appointment id function;

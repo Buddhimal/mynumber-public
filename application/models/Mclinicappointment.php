@@ -80,7 +80,7 @@ class Mclinicappointment extends CI_Model
 			$this->post['id'] = $appointment_id;
 			$this->post['session_id'] = $session_id;
 			$this->post['appointment_date'] = DateHelper::slk_date();
-//		$this->post['serial_number_id'] = $serial_number_id;
+			$this->post['serial_number_id'] = $appointment_serial_number_id;
 			$this->post['patient_id'] = $patient_id;
 			$this->post['is_canceled'] = 0;
 			$this->post['appointment_status'] = AppointmentStatus::PENDING;
@@ -105,11 +105,11 @@ class Mclinicappointment extends CI_Model
 			$this->mmodel->insert($this->table, $this->post);
 
 			if ($this->db->affected_rows() > 0) {
-				// echo "appointment id: " . $appointment_id . " ]";
-				$appointment = $this->get_appointment_full_detail($appointment_id);
 
+				$appointment = $this->get_appointment_full_detail($appointment_id);
 				$this->messagesender->send_sms($patient->telephone, SMSTemplate::NewAppointmentSMS((array)$appointment));
 				//create email record
+				
 				$email_data['sender_name'] = EmailSender::mynumber_info;
 				$email_data['send_to'] = $this->mpublic->get($patient_id)->email;
 				$email_data['template_id'] = EmailTemplate::public_new_appointment;
@@ -258,6 +258,8 @@ class Mclinicappointment extends CI_Model
 		$slk_date = DateHelper::slk_date();
 		$slk_day = DateHelper::utc_day();
 		$appointments = null;
+
+		// latest version 
 
 		$res = $this->db->query("SELECT
 											a.patient_id,
