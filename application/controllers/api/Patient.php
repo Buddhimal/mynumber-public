@@ -2232,12 +2232,33 @@ class Patient extends REST_Controller
 						$post = $this->put('json_data');
 						$now = strtotime('now');
 
+						/*
+						{
+							"data":{
+								"currency":"LKR",
+								"message":"Successfully completed the payment.",
+								"paymentNo":320025138685,
+								"price":10000,
+								"sign":"2C21CEFC67F1E5C4E3FEFC6D1F6BCB10",
+								"status":2
+							},
+							"message":"Payment success. Check response data",
+							"status":1
+						}
+						*/
+						//Log
+						$this->payments->log(json_encode($post), $transaction->public_id);
 						
 						$data['payment_date_time'] = $now;
 						$data['ipg_response'] = json_encode($post);
 						$data['ipg_response_time'] = $now;
+						
+						// print_r($post);
 
-						if( $post['status'] == PayHerePaymentStatus::OK ) {
+						// echo "status [" . $post['data']['status'] . "]";
+						// die();
+
+						if(isset($post) && (int)$post['data']['status'] == PayHerePaymentStatus::OK ) {
 
 							$data['payment_status'] = PaymentStatus::Success;
 
@@ -2259,7 +2280,7 @@ class Patient extends REST_Controller
 							$response->status = REST_Controller::HTTP_UNAUTHORIZED;
 							$response->status_code = APIResponseCode::UNAUTHORIZED;
 							$response->msg = NULL;
-							$response->error_msg[] = 'Invalid request method';
+							$response->error_msg[] = 'Status not found';
 							$response->response = NULL;
 						}
 
@@ -2271,7 +2292,7 @@ class Patient extends REST_Controller
 						$response->status = REST_Controller::HTTP_UNAUTHORIZED;
 						$response->status_code = APIResponseCode::UNAUTHORIZED;
 						$response->msg = NULL;
-						$response->error_msg[] = 'Invalid request method';
+						$response->error_msg[] = 'Transaction not found';
 						$response->response = NULL;
 					}
 				}// if Auth == true
