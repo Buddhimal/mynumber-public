@@ -2024,6 +2024,13 @@ class Patient extends REST_Controller
 
 						$post = $this->put('json_data');
 
+						////////////////////
+						// echo "post array: ";
+						// print_r($post);
+						// echo "---------------------";
+
+						// die();
+
 						$ipg_response = null;
 						if( $career == MobileCareer::Dialog ){
 							//echo  "dialog <br/>";
@@ -2031,12 +2038,24 @@ class Patient extends REST_Controller
 							try{
 
 								$otp_ref = json_decode($transaction->mobile_verification_ref);
+
+								//////////////////////
+								// echo "otpref: ";
+								// print_r($otp_ref); echo "<br/>";
+
 								$pin_verification_request = DialogRequestFactory::pin_verification_request($post['pin'], $otp_ref->data->serverRef);
 								
+								////////////////
+								// echo "pin verification request: ";
+								// print_r($pin_verification_request);
+
 								$ipg_response =  $this->dialogpin->pin($pin_verification_request);
 
+								////////////////
+								// echo "ipg response: ";
+								// print_r($ipg_response);
 
-								if( isset($ipg_response) && !empty($ipg_response)){
+								if( !isset($ipg_response) || empty($ipg_response)){
 									throw new Exception("response empty");
 								}
 
@@ -2102,7 +2121,7 @@ class Patient extends REST_Controller
 								$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
 								$response->msg = 'Payment failed';
 								$response->error_msg[] = $ipg_response->message;
-								// $response->error_msg[] = print_r($ipg_response, true);
+								$response->error_msg[] = $ex->getMessage();
 								$response->response = NULL;
 								$this->response($response, REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
 							}
