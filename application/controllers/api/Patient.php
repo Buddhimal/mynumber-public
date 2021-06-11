@@ -2232,6 +2232,10 @@ class Patient extends REST_Controller
 						$post = $this->put('json_data');
 						$now = strtotime('now');
 
+                        if(!empty($post) && !is_object($post)){
+                            $post= json_decode($post);
+                        }
+
 						/*
 						{
 							"data":{
@@ -2246,19 +2250,16 @@ class Patient extends REST_Controller
 							"status":1
 						}
 						*/
+						
+						
 						//Log
 						$this->payments->log(json_encode($post), $transaction->public_id);
 						
 						$data['payment_date_time'] = $now;
 						$data['ipg_response'] = json_encode($post);
 						$data['ipg_response_time'] = $now;
-						
-						// print_r($post);
 
-						// echo "status [" . $post['data']['status'] . "]";
-						// die();
-
-						if(isset($post) && (int)$post['data']['status'] == PayHerePaymentStatus::OK ) {
+						if(isset($post) && (int)$post->data->status == PayHerePaymentStatus::OK ) {
 
 							$data['payment_status'] = PaymentStatus::Success;
 
