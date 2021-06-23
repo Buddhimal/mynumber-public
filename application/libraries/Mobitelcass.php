@@ -51,11 +51,12 @@ class Mobitelcass
 			));
 
 			$response = curl_exec($ch);
-			curl_close($ch);
 
 			if($response === false){
 	            throw new Exception( 'Error: CURL request failed - '. stripslashes( curl_error( $ch ) ) );
 	        }
+
+	        curl_close($ch);
 
 			return json_decode($response);
 

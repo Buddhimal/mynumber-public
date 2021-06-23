@@ -2162,7 +2162,7 @@ class Patient extends REST_Controller
 									//echo  "E1406 <br/>";
 									$response->status = REST_Controller::HTTP_INTERNAL_SERVER_ERROR;
 									$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
-									$response->msg = 'Payment failed - not success not error or wrong pin';
+									$response->msg = 'Payment failed, You have rejected the payment confirmation';
 									$response->error_msg[] = $mobitel_response->statusDetail;
 									$response->response = NULL;
 									$this->response($response, REST_Controller::HTTP_OK);
