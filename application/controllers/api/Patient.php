@@ -1808,7 +1808,6 @@ class Patient extends REST_Controller
 
 				try
 				{
-
 					$check_auth_client = $this->mmodel->check_auth_client();
 
 					if ($check_auth_client == true) {
@@ -2024,13 +2023,6 @@ class Patient extends REST_Controller
 
 						$post = $this->put('json_data');
 
-						////////////////////
-						// echo "post array: ";
-						// print_r($post);
-						// echo "---------------------";
-
-						// die();
-
 						$ipg_response = null;
 						if( $career == MobileCareer::Dialog ){
 							//echo  "dialog <br/>";
@@ -2039,21 +2031,9 @@ class Patient extends REST_Controller
 
 								$otp_ref = json_decode($transaction->mobile_verification_ref);
 
-								//////////////////////
-								// echo "otpref: ";
-								// print_r($otp_ref); echo "<br/>";
-
 								$pin_verification_request = DialogRequestFactory::pin_verification_request($post['pin'], $otp_ref->data->serverRef);
-								
-								////////////////
-								// echo "pin verification request: ";
-								// print_r($pin_verification_request);
 
 								$ipg_response =  $this->dialogpin->pin($pin_verification_request);
-
-								////////////////
-								// echo "ipg response: ";
-								// print_r($ipg_response);
 
 								if( !isset($ipg_response) || empty($ipg_response)){
 									throw new Exception("response empty");
@@ -2068,13 +2048,14 @@ class Patient extends REST_Controller
 								$data['ipg_response'] = (empty($ipg_response)) ? null : json_encode($ipg_response);
 								$data['ipg_response_time'] = date("Y-m-d H:i:s", $now);
 
-								if( strtoupper( $ipg_response->statusCode ) == "SUCCESS") {
+								if( strtoupper( $ipg_response->statusCode ) != "SUCCESS") {
 
 									$data['payment_status'] = PaymentStatus::Success;
+									$this->mclinicappointment->set_data($post);
 
 									// have to grab an appointment number since this is success
 									$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
-									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
+									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->id);
 									$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
 									$data['appointment_id']= $appointment->id; // grab this using get appointment id function;
 
