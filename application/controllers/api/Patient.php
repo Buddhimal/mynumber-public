@@ -2048,7 +2048,7 @@ class Patient extends REST_Controller
 								$data['ipg_response'] = (empty($ipg_response)) ? null : json_encode($ipg_response);
 								$data['ipg_response_time'] = date("Y-m-d H:i:s", $now);
 
-								if( strtoupper( $ipg_response->statusCode ) != "SUCCESS") {
+								if( strtoupper( $ipg_response->statusCode ) == "SUCCESS") {
 
 									$data['payment_status'] = PaymentStatus::Success;
 									$this->mclinicappointment->set_data($post);
@@ -2121,8 +2121,11 @@ class Patient extends REST_Controller
 								if( strtoupper($mobitel_response->statusCode) == 'S1000'){
 									//echo  "S1000 <br/>";
 									// have to grab an appointment number since this is success
+
+									$this->mclinicappointment->set_data($post);
+
 									$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
-									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
+									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->id);
 									$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
 									
 									$data['appointment_id']= $appointment->id; // grab this using get appointment id function;
@@ -2243,10 +2246,11 @@ class Patient extends REST_Controller
 						if(isset($post) && (int)$post->data->status == PayHerePaymentStatus::OK ) {
 
 							$data['payment_status'] = PaymentStatus::Success;
+							$this->mclinicappointment->set_data($post);
 
 							// have to grab an appointment number since this is success
 							$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);							
-							$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
+							$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->id);
 							$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
 							$data['appointment_id']= $appointment->id; // grab this using get appointment id function;
 

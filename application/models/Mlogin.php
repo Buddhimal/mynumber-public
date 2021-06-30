@@ -189,10 +189,11 @@ class Mlogin extends CI_Model
     {
         $this->db
             ->set('is_confirmed', 1)
+            ->set('is_active', 1)
             ->set('updated', date("Y-m-d H:i:s"))
             ->where('entity_id', $entity_id)
-            ->where('is_active', 1)
-            ->where('is_deleted', 0)
+//            ->where('is_active', 1)
+//            ->where('is_deleted', 0)
             ->update($this->table);
         return true;
     }
