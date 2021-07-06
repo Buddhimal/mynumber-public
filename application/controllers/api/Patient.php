@@ -1869,6 +1869,7 @@ class Patient extends REST_Controller
 													$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
 													$response->msg = NULL;
 													$response->error_msg[] = 'Internal Server Error';
+													$response->error_code = $apiresponse->statusCode;
 													$response->response = NULL;
 													$this->response($response, REST_Controller::HTTP_OK);
 												}
@@ -1878,6 +1879,7 @@ class Patient extends REST_Controller
 												$response->status_code = APIResponseCode::INTERNAL_SERVER_ERROR;
 												$response->msg = NULL;
 												$response->error_msg[] = 'Internal Server Error';
+												$response->error_code = $apiresponse->statusCode;
 												$response->response = NULL;
 												$this->response($response, REST_Controller::HTTP_OK);
 											}
