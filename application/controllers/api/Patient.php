@@ -1187,6 +1187,8 @@ class Patient extends REST_Controller
 
 					$this->motpcode->set_data($this->put('json_data'));
 
+					$this->payments->log(json_encode($this->put('json_data')), $public_id);
+
 					if($this->motpcode->is_career_verification_needed()){
 
 						$otp_record = $this->motpcode->get_record_by_reference();
