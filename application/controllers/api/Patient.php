@@ -668,7 +668,7 @@ class Patient extends REST_Controller
 									if ($this->mclinicappointment->is_valid()) {
 
 										//confirm booking
-										$appointment = $this->mclinicappointment->create($patient_id, $session_id, $number->serial_number_id);
+										$appointment = $this->mclinicappointment->create($patient_id, $session_id, $number->serial_number_id, $number->id);
 
 										if (!is_null($appointment)) {
 
@@ -2057,7 +2057,7 @@ class Patient extends REST_Controller
 
 									// have to grab an appointment number since this is success
 									$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
-									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
+									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id, $number->id);
 									$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
 									$data['appointment_id']= $appointment->id; // grab this using get appointment id function;
 
@@ -2127,7 +2127,7 @@ class Patient extends REST_Controller
 									$this->mclinicappointment->set_data($post);
 
 									$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);
-									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id);
+									$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id, $number->id);
 									$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
 									
 									$data['appointment_id']= $appointment->id; // grab this using get appointment id function;
@@ -2252,7 +2252,7 @@ class Patient extends REST_Controller
 
 							// have to grab an appointment number since this is success
 							$number = $this->appointmentserialnumber->create($patient_id, $transaction->session_id);							
-							$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->id);
+							$appointment = $this->mclinicappointment->create($patient_id, $transaction->session_id, $number->serial_number_id, $number->id);
 							$appointment->serial_number = $this->mserialnumber->get($appointment->serial_number_id);
 							$data['appointment_id']= $appointment->id; // grab this using get appointment id function;
 

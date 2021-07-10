@@ -63,7 +63,7 @@ class Mclinicappointment extends CI_Model
 	/*
 	*
 	*/
-	public function create($patient_id, $session_id, $appointment_serial_number_id)
+	public function create($patient_id, $session_id,$serial_number_id, $appointment_serial_number_id)
 	{
 
 		$patient = $this->mpublic->get($patient_id);
@@ -80,7 +80,7 @@ class Mclinicappointment extends CI_Model
 			$this->post['id'] = $appointment_id;
 			$this->post['session_id'] = $session_id;
 			$this->post['appointment_date'] = DateHelper::slk_date();
-			$this->post['serial_number_id'] = $appointment_serial_number_id;
+			$this->post['serial_number_id'] = $serial_number_id;
 			$this->post['patient_id'] = $patient_id;
 			$this->post['is_canceled'] = 0;
 			$this->post['appointment_status'] = AppointmentStatus::PENDING;
