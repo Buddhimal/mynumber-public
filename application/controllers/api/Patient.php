@@ -2220,23 +2220,19 @@ class Patient extends REST_Controller
 						$post = $this->put('json_data');
 						$now = strtotime('now');
 
-                        if(!empty($post) && !is_object($post)){
-                            $post= json_decode($post);
-                        }
-
 						/*
-						{
-							"data":{
-								"currency":"LKR",
-								"message":"Successfully completed the payment.",
-								"paymentNo":320025138685,
-								"price":10000,
-								"sign":"2C21CEFC67F1E5C4E3FEFC6D1F6BCB10",
-								"status":2
-							},
-							"message":"Payment success. Check response data",
-							"status":1
-						}
+							{
+								"data":{
+									"currency":"LKR",
+									"message":"Successfully completed the payment.",
+									"paymentNo":320025138685,
+									"price":10000,
+									"sign":"2C21CEFC67F1E5C4E3FEFC6D1F6BCB10",
+									"status":2
+								},
+								"message":"Payment success. Check response data",
+								"status":1
+							}
 						*/
 						
 						
@@ -2247,7 +2243,9 @@ class Patient extends REST_Controller
 						$data['ipg_response'] = json_encode($post);
 						$data['ipg_response_time'] = $now;
 
-						if(isset($post) && (int)$post->data->status == PayHerePaymentStatus::OK ) {
+						$ipgresponse = json_decode($post->data); // this comes as a string hence need to decode
+
+						if(isset($ipgresponse) && (int)$ipgresponse->status == PayHerePaymentStatus::OK ) {
 
 							$data['payment_status'] = PaymentStatus::Success;
 							$this->mclinicappointment->set_data($post);
