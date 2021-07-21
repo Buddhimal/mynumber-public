@@ -2243,7 +2243,7 @@ class Patient extends REST_Controller
 						$data['ipg_response'] = json_encode($post);
 						$data['ipg_response_time'] = $now;
 
-						$ipgresponse = json_decode($post->data); // this comes as a string hence need to decode
+						$ipgresponse = json_decode($post["data"]); // this comes as a string hence need to decode
 
 						if(isset($ipgresponse) && (int)$ipgresponse->status == PayHerePaymentStatus::OK ) {
 
