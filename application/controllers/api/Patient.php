@@ -2245,7 +2245,7 @@ class Patient extends REST_Controller
 
 						$ipgresponse = json_decode($post["data"]); // this comes as a string hence need to decode
 
-						if(isset($ipgresponse) && (int)$ipgresponse->status == PayHerePaymentStatus::OK ) {
+						if(isset($ipgresponse) && (int)$ipgresponse->data->status == PayHerePaymentStatus::OK ) {
 
 							$data['payment_status'] = PaymentStatus::Success;
 							$this->mclinicappointment->set_data($post);
